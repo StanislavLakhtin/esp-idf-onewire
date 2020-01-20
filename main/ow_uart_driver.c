@@ -30,7 +30,7 @@ void ow_uart_driver_init() {
   };
   uart_driver_install(OW_UART, BUF_SIZE *2 , BUF_SIZE , 0, NULL, 0);
   uart_param_config(OW_UART, &uart_config);
-  uart_set_pin(UART_NUM_1, OW_UART_TXD, OW_UART_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+  uart_set_pin(OW_UART, OW_UART_TXD, OW_UART_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
   _created_uart_conf = 0x01;
 }
 
