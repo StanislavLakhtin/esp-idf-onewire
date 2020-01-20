@@ -10,12 +10,19 @@
 
 #include "ow/ow.h"
 
+#define OW_UART_TXD  (GPIO_NUM_4)
+#define OW_UART_RXD  (GPIO_NUM_5)
+#define OW_UART UART_NUM_1
+
+#define BUF_SIZE (256)
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-void ow_uart_driver_setup(uint32_t baud);
+void ow_uart_driver_init();
+void ow_uart_baudrate_setup(uint32_t baud);
 void ow_uart_driver_send(char data);
 
 #ifdef __cplusplus
