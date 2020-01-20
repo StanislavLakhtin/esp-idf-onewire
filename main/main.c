@@ -11,55 +11,59 @@
 #include <stdio.h>
 #include <ow/ds18b20.h>
 #include <esp_log.h>
+#include <soc/uart_reg.h>
+#include <soc/uart_struct.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "ow_uart_driver.h"
 
 OneWire ow_dev;
+const char* OW_TASK_TAG = "1wire";
+static intr_handle_t ow_uart_handle;
 
-const char* OW_TASK = "OW_UART";
+static void IRAM_ATTR ow_rx_isr(void* arg) {
+  volatile uart_dev_t *uart = &UART1;
+  ESP_LOGI(OW_TASK_TAG, "rx isr routine");
+  while (uart->status.rxfifo_cnt) {
+    uint8_t _d = uart->fifo.rw_byte;
+    ow_bus_get_echo_data(&ow_dev, _d);
+    ESP_LOGI(OW_TASK_TAG, "get %x", _d);
+  }
+  uart_clear_intr_status(UART_NUM_0, UART_RXFIFO_FULL_INT_CLR | UART_RXFIFO_TOUT_INT_CLR);
+}
 
 static void init() {
   ow_uart_driver_init();
   ow_dev.usart_setup = ow_uart_baudrate_setup;
   ow_dev.send_usart = ow_uart_driver_send;
+  uart_isr_register(OW_UART, ow_rx_isr, NULL, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM, &ow_uart_handle);
+  uart_enable_rx_intr(OW_UART);
 }
 
 static void ow_task(void *arg) {
   while (1) {
-    ESP_LOGI(OW_TASK, "Scan OW bus...");
+    ESP_LOGI(OW_TASK_TAG, "Scan OW bus...");
     uint8_t rslt = ow_scan(&ow_dev);
     if (rslt) {
-      ESP_LOGI(OW_TASK, "Found one or more devices");
+      ESP_LOGI(OW_TASK_TAG, "Found one or more devices");
       for (uint8_t i = 0; i < ow_dev.state.devicesQuantity; i++) {
         if (ow_dev.rom[i].family == 0x28) {  // Found DS18B20 Temp sensor
-          ESP_LOGI(OW_TASK, "temp: %f", read_temperature(&ow_dev, &ow_dev.rom[1]));
+          ESP_LOGI(OW_TASK_TAG, "temp: %f", read_temperature(&ow_dev, &ow_dev.rom[1]));
         }
       }
     } else {
-      ESP_LOGI(OW_TASK, "There are no any OW device on the bus");
+      ESP_LOGI(OW_TASK_TAG, "There are no any OW device on the bus");
     }
     for (int i = 10; i >= 0; i--) {
-      ESP_LOGI(OW_TASK, "Rescaning in %d seconds...", i * 1);
+      ESP_LOGI(OW_TASK_TAG, "Rescaning in %d seconds...", i * 1);
       vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
   }
 }
 
-static void rx_task(void *arg) {
-  static const char *RX_TASK_TAG = "RX_TASK";
-  uint8_t data = 0x00;
-  while (1) {
-    const int rxBytes = uart_read_bytes(OW_UART, &data, 1, 10 / portTICK_RATE_MS);
-    if (rxBytes > 0) {
-      ow_bus_get_echo_data(&ow_dev, data);
-      ESP_LOGI(RX_TASK_TAG, "Read byte: '%d'", ow_dev.state.rc_buffer);
-    }
-  }
-}
+
 
 void app_main(void) {
   init();
   xTaskCreate(ow_task, "ow_task", 2048, NULL, 10, NULL);
-  xTaskCreate(rx_task, "rx_task", configMINIMAL_STACK_SIZE, NULL, 10, NULL);
 }
