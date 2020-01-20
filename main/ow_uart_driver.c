@@ -28,9 +28,12 @@ void ow_uart_driver_init() {
       .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
       .source_clk = UART_SCLK_APB,
   };
-  uart_driver_install(OW_UART, BUF_SIZE *2 , BUF_SIZE , 0, NULL, 0);
+  uart_driver_install(OW_UART, BUF_SIZE *2 , BUF_SIZE , 20, &ow_uart_queue, 0);
   uart_param_config(OW_UART, &uart_config);
   uart_set_pin(OW_UART, OW_UART_TXD, OW_UART_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+  uart_enable_pattern_det_baud_intr(OW_UART, '+', PATTERN_CHR_NUM, 9, 0, 0);
+  //Reset the pattern queue length to record at most 20 pattern positions.
+  uart_pattern_queue_reset(OW_UART, 20);
   _created_uart_conf = 0x01;
 }
 
