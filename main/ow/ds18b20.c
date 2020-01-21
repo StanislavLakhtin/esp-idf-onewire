@@ -19,13 +19,13 @@
  * @param tL  int8_t
  * @param conf
  */
-void write_scratchpad( OneWire * ow_dev, RomCode * rom, int8_t tH, int8_t tL, uint8_t conf ) {
-  ow_match_rom( ow_dev, rom );
-  ow_send_byte( ow_dev, DS18B20_WRITE_SCRATCHPAD );
+void write_scratchpad(OneWire *ow_dev, RomCode *rom, int8_t tH, int8_t tL, uint8_t conf) {
+  ow_match_rom(ow_dev, rom);
+  ow_send_byte(ow_dev, DS18B20_WRITE_SCRATCHPAD);
   // This command allows the master to write 3 bytes of data to the DS18B20’s scratchpad.
-  ow_send_byte( ow_dev, tH );
-  ow_send_byte( ow_dev, tL );
-  ow_send_byte( ow_dev, conf );
+  ow_send_byte(ow_dev, tH);
+  ow_send_byte(ow_dev, tL);
+  ow_send_byte(ow_dev, conf);
 }
 
 /**
@@ -35,16 +35,16 @@ void write_scratchpad( OneWire * ow_dev, RomCode * rom, int8_t tH, int8_t tL, ui
  *
  * The master may issue a reset to terminate reading at any time if only part of the scratchpad data is needed.
  * */
-void read_scratchpad( OneWire * ow_dev, RomCode * rom, uint8_t * scratchpad, uint8_t len ) {
-  ow_match_rom( ow_dev, rom );
-  ow_send_byte( ow_dev, DS18B20_READ_SCRATCHPAD );
+void read_scratchpad(OneWire *ow_dev, RomCode *rom, uint8_t *scratchpad, uint8_t len) {
+  ow_match_rom(ow_dev, rom);
+  ow_send_byte(ow_dev, DS18B20_READ_SCRATCHPAD);
   uint8_t l = len * 8, i = 0;
-  while ( i < l ) {
-    uint8_t p = ( uint8_t ) ( i / 8 );
-    if ( ow_read_bit( ow_dev ))
-      scratchpad[ p ] |= 1 << i % 8;
+  while (i < l) {
+    uint8_t p = (uint8_t) (i / 8);
+    if (ow_read_bit(ow_dev))
+      scratchpad[p] |= 1 << i % 8;
     else
-      scratchpad[ p ] &= ~( 1 << i % 8 );
+      scratchpad[p] &= ~(1 << i % 8);
     i += 1;
   }
 }
@@ -52,9 +52,9 @@ void read_scratchpad( OneWire * ow_dev, RomCode * rom, uint8_t * scratchpad, uin
 /**
  * This command copies the contents of the scratchpad TH, TL and configuration registers (bytes 2, 3 and 4) to EEPROM.
  */
-void store_current_scratchpad_to_eeprom( OneWire * ow_dev, RomCode * rom ) {
-  ow_match_rom( ow_dev, rom );
-  ow_send_byte( ow_dev, DS18B20_COPY_SCRATCHPAD );
+void store_current_scratchpad_to_eeprom(OneWire *ow_dev, RomCode *rom) {
+  ow_match_rom(ow_dev, rom);
+  ow_send_byte(ow_dev, DS18B20_COPY_SCRATCHPAD);
 }
 
 /**
@@ -66,9 +66,9 @@ void store_current_scratchpad_to_eeprom( OneWire * ow_dev, RomCode * rom ) {
  * @param ow_dev
  * @param rom
  */
-void restore_scratchpad_from_eeprom( OneWire * ow_dev, RomCode * rom ) {
-  ow_match_rom( ow_dev, rom );
-  ow_send_byte( ow_dev, DS18B20_RECALL_E2 );
+void restore_scratchpad_from_eeprom(OneWire *ow_dev, RomCode *rom) {
+  ow_match_rom(ow_dev, rom);
+  ow_send_byte(ow_dev, DS18B20_RECALL_E2);
 }
 
 /**
@@ -77,29 +77,29 @@ void restore_scratchpad_from_eeprom( OneWire * ow_dev, RomCode * rom ) {
  * @param rom
  * @param temp buffer for result
  */
-float read_temperature( OneWire * ow_dev, RomCode * rom ) {
-  uint8_t buffer[5] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
-  read_scratchpad( ow_dev, rom, buffer, 5 );  // We can cut off answer on necessary bytes
-  ow_match_rom( ow_dev, rom );
-  ow_send_byte( ow_dev,
-                DS18B20_CONVERT_TEMPERATURE );  // conversion will be processed with stored before accuracy (9-12 bit)
-  float rslt = ( float ) ((( buffer[ DS18B20_MSB ] << 4 ) & 0xf0 ) | ( buffer[ DS18B20_LSB ] >> 4 ));
-  switch ( buffer[ DS18B20_CONFIG ] | 0x0f ) {
+float read_temperature(OneWire *ow_dev, RomCode *rom) {
+  uint8_t buffer[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
+  read_scratchpad(ow_dev, rom, buffer, 5);  // We can cut off answer on necessary bytes
+  ow_match_rom(ow_dev, rom);
+  ow_send_byte(ow_dev,
+               DS18B20_CONVERT_TEMPERATURE);  // conversion will be processed with stored before accuracy (9-12 bit)
+  float rslt = (float) (((buffer[DS18B20_MSB] << 4) & 0xf0) | (buffer[DS18B20_LSB] >> 4));
+  switch (buffer[DS18B20_CONFIG] | 0x0f) {
     default:
     case RESOLUTION_9_BIT:
-      buffer[ DS18B20_LSB ] = buffer[ DS18B20_LSB ] & 0x08;
+      buffer[DS18B20_LSB] = buffer[DS18B20_LSB] & 0x08;
       break;
     case RESOLUTION_10_BIT:
-      buffer[ DS18B20_LSB ] = buffer[ DS18B20_LSB ] & 0x0c;
+      buffer[DS18B20_LSB] = buffer[DS18B20_LSB] & 0x0c;
       break;
     case RESOLUTION_11_BIT:
-      buffer[ DS18B20_LSB ] = buffer[ DS18B20_LSB ] & 0x0e;
+      buffer[DS18B20_LSB] = buffer[DS18B20_LSB] & 0x0e;
       break;
     case RESOLUTION_12_BIT:
-      buffer[ DS18B20_LSB ] = buffer[ DS18B20_LSB ] & 0x0f;
+      buffer[DS18B20_LSB] = buffer[DS18B20_LSB] & 0x0f;
       break;
   }
-  rslt = rslt + ( buffer[ DS18B20_LSB ] ) / 16.0;
+  rslt = rslt + (buffer[DS18B20_LSB]) / 16.0;
   return rslt;
 }
 
@@ -115,8 +115,8 @@ float read_temperature( OneWire * ow_dev, RomCode * rom ) {
  * @param rom
  * @return if ! 0x00 then device is parasite power
  */
-uint8_t read_power_supply( OneWire * ow_dev, RomCode * rom ) {
-  ow_match_rom( ow_dev, rom );
-  ow_send_byte( ow_dev, DS18B20_READ_POWER_SUPPLY );
-  return ow_read_bit( ow_dev );
+uint8_t read_power_supply(OneWire *ow_dev, RomCode *rom) {
+  ow_match_rom(ow_dev, rom);
+  ow_send_byte(ow_dev, DS18B20_READ_POWER_SUPPLY);
+  return ow_read_bit(ow_dev);
 }

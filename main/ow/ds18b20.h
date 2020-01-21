@@ -47,17 +47,17 @@ extern "C"
  * of the recall by transmitting 0 while the recall is in progress and 1 when the recall is done.
  * */
 
-void write_scratchpad( OneWire * ow_dev, RomCode * rom, int8_t tH, int8_t tL, uint8_t conf );
+void write_scratchpad(OneWire *ow_dev, RomCode *rom, int8_t tH, int8_t tL, uint8_t conf);
 
-void read_scratchpad( OneWire * ow_dev, RomCode * rom, uint8_t * scratchpad, uint8_t len );
+void read_scratchpad(OneWire *ow_dev, RomCode *rom, uint8_t *scratchpad, uint8_t len);
 
-void store_current_scratchpad_to_eeprom( OneWire * ow_dev, RomCode * rom );
+void store_current_scratchpad_to_eeprom(OneWire *ow_dev, RomCode *rom);
 
-void restore_scratchpad_from_eeprom( OneWire * ow_dev, RomCode * rom );
+void restore_scratchpad_from_eeprom(OneWire *ow_dev, RomCode *rom);
 
-float read_temperature( OneWire * ow_dev, RomCode * rom );
+float read_temperature(OneWire *ow_dev, RomCode *rom);
 
-uint8_t read_power_supply( OneWire * ow_dev, RomCode * rom );
+uint8_t read_power_supply(OneWire *ow_dev, RomCode *rom);
 
 #ifdef __cplusplus
 }

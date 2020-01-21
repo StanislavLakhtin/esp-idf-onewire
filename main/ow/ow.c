@@ -11,10 +11,10 @@
             В случае использования, просьба ссылаться на первоисточник.
  */
 
-static uint8_t docrc8( OneWire * ow_dev, uint8_t value );
+static uint8_t docrc8(OneWire *ow_dev, uint8_t value);
 
-void ow_clear_state( OneWire * ow_dev ) {
-  OWState * state = &ow_dev->state;
+void ow_clear_state(OneWire *ow_dev) {
+  OWState *state = &ow_dev->state;
   state->hasMoreROM = FALSE;
   state->lastDiscrepancy = 0x00;
   state->lastFamilyDiscrepancy = 0x00;
@@ -23,70 +23,70 @@ void ow_clear_state( OneWire * ow_dev ) {
   state->rc_buffer = 0x00;
   state->devicesQuantity = 0x00;
   state->crc8 = 0x00;
-  for ( uint8_t i = 0 ; i < ONEWIRE_MAXDEVICES_ON_THE_BUS ; i++ ) {
-    RomCode * ROM = &ow_dev->rom[ i ];
+  for (uint8_t i = 0; i < ONEWIRE_MAXDEVICES_ON_THE_BUS; i++) {
+    RomCode *ROM = &ow_dev->rom[i];
     ROM->crc = 0x00;
     ROM->family = 0x00;
-    for ( uint8_t n = 0 ; n < 6 ; n++ )
-      ROM->code[ n ] = 0x00;
+    for (uint8_t n = 0; n < 6; n++)
+      ROM->code[n] = 0x00;
   }
 }
 
-void ow_send( OneWire * ow_dev, uint8_t data ) {
+void ow_send(OneWire *ow_dev, uint8_t data) {
   ow_dev->state.rc_flag = OW_SEND;
-  ow_dev->send_usart( data );
+  ow_dev->send(data);
 }
 
-void ow_send_byte( OneWire * ow_dev, uint8_t data ) {
-  for ( uint8_t b = 0 ; b < 8 ; b++ ) {
-    uint8_t bit = ( data & 0x01 ) ? WIRE_1 : WIRE_0;
-    ow_send( ow_dev, bit );
+void ow_send_byte(OneWire *ow_dev, uint8_t data) {
+  for (uint8_t b = 0; b < 8; b++) {
+    uint8_t bit = (data & 0x01) ? WIRE_1 : WIRE_0;
+    ow_send(ow_dev, bit);
     data >>= 1;
   }
 }
 
-uint16_t ow_reset_cmd( OneWire * ow_dev ) {
-  ow_dev->usart_setup( 9600 );
+uint16_t ow_reset_cmd(OneWire *ow_dev) {
+  /*ow_dev->usart_setup( 9600 );
 
   ow_send( ow_dev, ONEWIRE_RESET );
   uint16_t owPresence = ow_read_blocking( ow_dev ); // Ждём PRESENCE на шине и вовзращаем, что есть
 
-  ow_dev->usart_setup( 115200 );
-  return owPresence;
+  ow_dev->usart_setup( 115200 );*/
+  return ow_dev->reset();
 }
 
-void ow_bus_get_echo_data( OneWire * ow_dev, uint16_t data ) {
+void ow_bus_get_echo_data(OneWire *ow_dev, uint16_t data) {
   ow_dev->state.rc_flag = OW_RECEIVED;
-  ow_dev->state.rc_buffer = ( uint8_t ) data;
+  ow_dev->state.rc_buffer = (uint8_t) data;
 }
 
-uint16_t ow_read_blocking( OneWire * ow_dev ) {
+uint16_t ow_read_blocking(OneWire *ow_dev) {
   uint32_t timeout = ONEWIRE_READ_TIMEOUT;
-  while (( ow_dev->state.rc_flag == OW_SEND ) && ( timeout-- ));
+  while ((ow_dev->state.rc_flag == OW_SEND) && (timeout--));
 
-  if ( timeout == 0 )
+  if (timeout == 0)
     return 0x00;
   else
     return ow_dev->state.rc_buffer;
 }
 
-uint8_t ow_read_bit( OneWire * ow_dev ) {
-  ow_send( ow_dev, OW_READ );
-  return ow_read_blocking( ow_dev ) == OW_READ ? 0x01 : 0x00;
+uint8_t ow_read_bit(OneWire *ow_dev) {
+  ow_send(ow_dev, OW_READ);
+  return ow_read_blocking(ow_dev) == OW_READ ? 0x01 : 0x00;
 }
 
-uint8_t ow_scan( OneWire * ow_dev ) {
+uint8_t ow_scan(OneWire *ow_dev) {
   uint8_t rslt, num = 0;
-  ow_clear_state( ow_dev );
+  ow_clear_state(ow_dev);
   do {
-    rslt = ow_find_next_ROM( ow_dev, ONEWIRE_SEARCH );
-    if ( rslt == TRUE ) {
+    rslt = ow_find_next_ROM(ow_dev, ONEWIRE_SEARCH);
+    if (rslt == TRUE) {
       // нашёлся очередной ROM на шине
-      if ( num < ONEWIRE_MAXDEVICES_ON_THE_BUS ) {
-        ow_dev->rom[ num ].family = ow_dev->state.ROM_BUFFER[ 0 ];
-        ow_dev->rom[ num ].crc = ow_dev->state.ROM_BUFFER[ 7 ];
-        for ( uint8_t n = 1 ; n < 7 ; n++ )
-          ow_dev->rom[ num ].code[ n - 1 ] = ow_dev->state.ROM_BUFFER[ n ];
+      if (num < ONEWIRE_MAXDEVICES_ON_THE_BUS) {
+        ow_dev->rom[num].family = ow_dev->state.ROM_BUFFER[0];
+        ow_dev->rom[num].crc = ow_dev->state.ROM_BUFFER[7];
+        for (uint8_t n = 1; n < 7; n++)
+          ow_dev->rom[num].code[n - 1] = ow_dev->state.ROM_BUFFER[n];
         ow_dev->state.devicesQuantity += 1;
       } else {
         // сохраняем флаг о том, что есть ROM на шине, который не влез в нашу таблицу и выходим с ошибкой
@@ -95,7 +95,7 @@ uint8_t ow_scan( OneWire * ow_dev ) {
       }
       num += 1;
     }
-  } while ( rslt && !ow_dev->state.lastDeviceFlag );
+  } while (rslt && !ow_dev->state.lastDeviceFlag);
   return rslt;
 }
 
@@ -104,7 +104,7 @@ uint8_t ow_scan( OneWire * ow_dev ) {
  * @param search_command ONEWIRE_SEARCH (default -- 0xF0) or ALARM_SEARCH (0xEC)
  * @return FALSE if no or TRUE if some device respond on the bus
  */
-uint8_t ow_find_next_ROM( OneWire * ow_dev, uint8_t search_command ) {
+uint8_t ow_find_next_ROM(OneWire *ow_dev, uint8_t search_command) {
   uint8_t id_bit_number;
   uint8_t last_zero, rom_byte_number, search_result;
   uint8_t id_bit, cmp_id_bit;
@@ -117,12 +117,12 @@ uint8_t ow_find_next_ROM( OneWire * ow_dev, uint8_t search_command ) {
   rom_byte_mask = 1;
   search_result = 0;
 
-  OWState * state = &ow_dev->state;
+  OWState *state = &ow_dev->state;
 
   // если крайний вызов был не для крайнего устройства на шине
-  if ( !state->lastDeviceFlag ) {
+  if (!state->lastDeviceFlag) {
     // 1-Wire reset
-    if ( ow_reset_cmd( ow_dev ) == ONEWIRE_NOBODY ) {
+    if (ow_reset_cmd(ow_dev) == ONEWIRE_NOBODY) {
       // сброс поиска
       state->lastDiscrepancy = 0;
       state->lastDeviceFlag = FALSE;
@@ -130,50 +130,50 @@ uint8_t ow_find_next_ROM( OneWire * ow_dev, uint8_t search_command ) {
       return FALSE;
     }
 
-    ow_send_byte( ow_dev, search_command );
+    ow_send_byte(ow_dev, search_command);
 
     do {
       // чтение прямого и комплиментарного битов
-      id_bit = ow_read_bit( ow_dev );
-      cmp_id_bit = ow_read_bit( ow_dev );
+      id_bit = ow_read_bit(ow_dev);
+      cmp_id_bit = ow_read_bit(ow_dev);
 
       // проверка, что на шине нет ни одного устрйоства. В этом случае и прямой и комплиментарный биты равны
-      if ( id_bit && cmp_id_bit )
+      if (id_bit && cmp_id_bit)
         break;
       else {
         // все устройства имеют одинаковый ответ: 0 or 1, не важно сейчас
-        if ( id_bit != cmp_id_bit )
+        if (id_bit != cmp_id_bit)
           search_direction = id_bit;  // выбираем в качестве "направления" прямой бит
         else {
           // В случсе несоответствия (у некоторых устройств 0, а у других 1), проверяем, чтобы несоответствие было
           // ДО зафиксированного положения в Last Discrepancy
           // сдеанного на предыдущем шаге
-          if ( id_bit_number < state->lastDiscrepancy )
-            search_direction = (( state->ROM_BUFFER[ rom_byte_number ] & rom_byte_mask ) > 0 );
+          if (id_bit_number < state->lastDiscrepancy)
+            search_direction = ((state->ROM_BUFFER[rom_byte_number] & rom_byte_mask) > 0);
           else
             // если равны в последнем сравнении, выбираем 1, или 0 в противном случае
-            search_direction = ( id_bit_number == state->lastDiscrepancy );
+            search_direction = (id_bit_number == state->lastDiscrepancy);
 
           // Если было 0, то записываем эту позицию в LastZero
-          if ( search_direction == 0 ) {
+          if (search_direction == 0) {
             last_zero = id_bit_number;
 
             // Проверяем, чтобы last_zero было последней в выборе семейства устройств
-            if ( last_zero < 9 )
+            if (last_zero < 9)
               state->lastFamilyDiscrepancy = last_zero;
           }
         }
 
         // устанавливаем (или стираем) бит в ROM
         // с масской rom_byte_mask
-        if ( search_direction )
-          state->ROM_BUFFER[ rom_byte_number ] |= rom_byte_mask;
+        if (search_direction)
+          state->ROM_BUFFER[rom_byte_number] |= rom_byte_mask;
         else
-          state->ROM_BUFFER[ rom_byte_number ] &= ~rom_byte_mask;
+          state->ROM_BUFFER[rom_byte_number] &= ~rom_byte_mask;
 
         // отсылаем на шину выбранное нами направление сканирования
-        uint8_t answerBit = ( uint8_t ) (( search_direction == 0 ) ? WIRE_0 : WIRE_1 );
-        ow_send( ow_dev, answerBit );
+        uint8_t answerBit = (uint8_t) ((search_direction == 0) ? WIRE_0 : WIRE_1);
+        ow_send(ow_dev, answerBit);
 
         // выполняем инкремент бита id_bit_number
         // и сдвигаем маску rom_byte_mask
@@ -181,21 +181,21 @@ uint8_t ow_find_next_ROM( OneWire * ow_dev, uint8_t search_command ) {
         rom_byte_mask <<= 1;
 
         // Если маска установлена в 0 идём в новый байт SerialNum rom_byte_number и сбрасываем маску
-        if ( rom_byte_mask == 0 ) {
-          docrc8( ow_dev, state->ROM_BUFFER[ rom_byte_number ] );  // походу рассчитываем CRC
+        if (rom_byte_mask == 0) {
+          docrc8(ow_dev, state->ROM_BUFFER[rom_byte_number]);  // походу рассчитываем CRC
           rom_byte_number += 1;
           rom_byte_mask = 0x01;
         }
       }
-    } while ( rom_byte_number < 8 );  // сканировать будем все ROM байты (от 0-7)
+    } while (rom_byte_number < 8);  // сканировать будем все ROM байты (от 0-7)
 
     // Если поиск был успешным
-    if ( !(( id_bit_number < 65 ) || ( state->crc8 != 0 ))) {
+    if (!((id_bit_number < 65) || (state->crc8 != 0))) {
       // считаем, что поиск очередного ROM прошёл успешно и устанавливаем LastDiscrepancy, LastDeviceFlag, search_result
       state->lastDiscrepancy = last_zero;
 
       // проверяем, является ли результат поиска последним на шине
-      if ( state->lastDiscrepancy == 0 )
+      if (state->lastDiscrepancy == 0)
         state->lastDeviceFlag = TRUE;
 
       search_result = TRUE;
@@ -203,8 +203,8 @@ uint8_t ow_find_next_ROM( OneWire * ow_dev, uint8_t search_command ) {
   }
 
   // Если не было найдено ни одного устройства на шине :-( то мы считаем, что шина чистая и следующий поиск будет как в первый раз
-  if ( !search_result || !state->ROM_BUFFER[ 0 ] ) {
-    ow_clear_state( ow_dev );
+  if (!search_result || !state->ROM_BUFFER[0]) {
+    ow_clear_state(ow_dev);
     search_result = FALSE;
   }
 
@@ -230,16 +230,16 @@ static const uint8_t onewire_crc_table[] = {
     0x74, 0x2a, 0xc8, 0x96, 0x15, 0x4b, 0xa9, 0xf7, 0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35
 };
 
-static uint8_t docrc8( OneWire * ow_dev, uint8_t value ) {
-  ow_dev->state.crc8 = onewire_crc_table[ ow_dev->state.crc8 ^ value ];
+static uint8_t docrc8(OneWire *ow_dev, uint8_t value) {
+  ow_dev->state.crc8 = onewire_crc_table[ow_dev->state.crc8 ^ value];
   return ow_dev->state.crc8;
 }
 
-void ow_match_rom( OneWire * ow_dev, RomCode * rom ) {
-  ow_reset_cmd( ow_dev );
-  ow_send_byte( ow_dev, ONEWIRE_MATCH_ROM );
-  ow_send_byte( ow_dev, rom->family );
-  for ( uint8_t i = 0 ; i < 6 ; i++ )
-    ow_send_byte( ow_dev, rom->code[ i ] );
-  ow_send_byte( ow_dev, rom->crc );
+void ow_match_rom(OneWire *ow_dev, RomCode *rom) {
+  ow_reset_cmd(ow_dev);
+  ow_send_byte(ow_dev, ONEWIRE_MATCH_ROM);
+  ow_send_byte(ow_dev, rom->family);
+  for (uint8_t i = 0; i < 6; i++)
+    ow_send_byte(ow_dev, rom->code[i]);
+  ow_send_byte(ow_dev, rom->crc);
 }
