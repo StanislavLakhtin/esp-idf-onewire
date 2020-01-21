@@ -8,6 +8,7 @@
 void ow_rmt_driver_init() {
   rmt_config_t config = RMT_DEFAULT_CONFIG_TX(OW_RMT_PIN, OW_RMT_CHANNEL);
   config.tx_config.idle_level = RMT_IDLE_LEVEL_HIGH;
+  config.clk_div = 2;
   ESP_ERROR_CHECK(rmt_config(&config));
   ESP_ERROR_CHECK(rmt_driver_install(config.channel, 0, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM | ESP_INTR_FLAG_SHARED));
 }
