@@ -5,8 +5,18 @@
 #ifndef ONEWIRE_UART_OW_RMT_DRIVER_H
 #define ONEWIRE_UART_OW_RMT_DRIVER_H
 
+#include "sdkconfig.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/rmt.h"
+#include "esp_log.h"
 #include "ow/ow.h"
 #include <ow/ds18b20.h>
+
+#define OW_RMT_PIN        GPIO_NUM_16
+#define OW_RMT_CHANNEL    RMT_CHANNEL_0
+
+static const rmt_item32_t RESET_PULSE = { {{32767, 0, 32767, 0}} } ;
 
 #ifdef __cplusplus
 extern "C"

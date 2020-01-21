@@ -8,13 +8,11 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
-#include <stdio.h>
 #include <string.h>
+#include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-#include <soc/uart_reg.h>
-#include <soc/uart_struct.h>
 #include <esp_log.h>
 #include "ow_rmt_driver.h"
 
@@ -23,7 +21,7 @@ const char *OW_TASK_TAG = "1wire";
 
 static void init() {
   ow_rmt_driver_init();
-  ow_dev.send = ow_rmt_driver_send;
+  //ow_dev.send = ow_rmt_driver_send;
   ow_dev.reset = ow_rmt_reset;
 }
 
@@ -48,7 +46,17 @@ static void ow_task(void *arg) {
   }
 }
 
+static void test_task(void *arg) {
+  while (1) {
+    ESP_LOGI(OW_TASK_TAG, "Scan OW bus...");
+    ow_dev.reset();
+    ESP_LOGI(OW_TASK_TAG, "Transmission complete");
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+  }
+}
+
 void app_main(void) {
   init();
-  xTaskCreate(ow_task, "ow_task", 2048, NULL, 10, NULL);
+  //xTaskCreate(ow_task, "ow_task", 2048, NULL, 10, NULL);
+  xTaskCreate(test_task, "test_wo_rmt_task", 2048, NULL, 10, NULL);
 }
