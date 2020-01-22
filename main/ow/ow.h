@@ -54,9 +54,9 @@ typedef struct {
   uint8_t crc;
 } RomCode;
 
-typedef void (*ow_send_fptr_t)(uint16_t data);
-
-typedef uint16_t (*ow_reset_fptr_t)(void);
+typedef void ( * ow_send_fptr_t ) ( uint16_t data );
+typedef uint16_t ( * ow_reset_fptr_t ) (void );
+typedef uint8_t ( * ow_read_fptr_t ) ( void );
 
 typedef struct {
   volatile uint8_t rc_buffer;
@@ -74,6 +74,7 @@ typedef struct {
   RomCode rom[ONEWIRE_MAXDEVICES_ON_THE_BUS];
   ow_send_fptr_t send;
   ow_reset_fptr_t reset;
+  ow_read_fptr_t read;
   OWState state;
 } OneWire;
 
