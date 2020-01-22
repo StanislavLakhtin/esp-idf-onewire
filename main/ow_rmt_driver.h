@@ -13,12 +13,16 @@
 #include "ow/ow.h"
 #include <ow/ds18b20.h>
 
-#define OW_RMT_TX_PIN        GPIO_NUM_16
-#define OW_RMT_RX_PIN        GPIO_NUM_17
-#define OW_RMT_TX_CHANNEL    RMT_CHANNEL_0
-#define OW_RMT_RX_CHANNEL    RMT_CHANNEL_1
+#define OW_RMT_TX_PIN         GPIO_NUM_16
+#define OW_RMT_RX_PIN         GPIO_NUM_17
+#define OW_RMT_TX_CHANNEL     RMT_CHANNEL_0
+#define OW_RMT_RX_CHANNEL     RMT_CHANNEL_1
 
-static const rmt_item32_t RESET_PULSE = { {{0x4fff, 0, 0x7fff, 1}} } ;
+#define OW_RMT_RX_BUFFER_SIZE 8
+
+#define _RESET_DURATION         480
+#define _RESET_IDLE_DURATION    70
+#define _IDLE_DURATION          70
 
 #ifdef __cplusplus
 extern "C"
