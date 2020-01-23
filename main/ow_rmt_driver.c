@@ -9,15 +9,16 @@ esp_err_t ow_rmt_driver_init() {
   rmt_config_t _config_tx = RMT_DEFAULT_CONFIG_TX(OW_RMT_TX_PIN, OW_RMT_TX_CHANNEL);
   _config_tx.tx_config.idle_level = RMT_IDLE_LEVEL_HIGH;
   _config_tx.clk_div = CLK_DIV;
-  ESP_ERROR_CHECK(rmt_config(&_config_tx));
+  ESP_ERROR_CHECK(rmt_config(&_config_tx) );
   ESP_ERROR_CHECK(
       rmt_driver_install(_config_tx.channel, 0,
                          ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED));
+
   rmt_config_t _config_rx = RMT_DEFAULT_CONFIG_RX(OW_RMT_RX_PIN, OW_RMT_RX_CHANNEL);
   _config_rx.rx_config.filter_en = true;
   _config_rx.rx_config.filter_ticks_thresh = OW_MS_TO_RMT_TICKS(_THRESHOLD_DURATION);
   _config_rx.clk_div = CLK_DIV;
-  ESP_ERROR_CHECK(rmt_config(&_config_rx));
+  ESP_ERROR_CHECK(rmt_config(&_config_rx) );
   ESP_ERROR_CHECK(
       rmt_driver_install(_config_rx.channel,
                          sizeof(rmt_item32_t) * OW_RMT_RX_BUFFER_SIZE,
