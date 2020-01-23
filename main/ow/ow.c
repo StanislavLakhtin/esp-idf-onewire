@@ -19,8 +19,6 @@ void ow_clear_state(OneWire *ow_dev) {
   state->lastDiscrepancy = 0x00;
   state->lastFamilyDiscrepancy = 0x00;
   state->lastDeviceFlag = FALSE;
-  state->rc_flag = FALSE;
-  state->rc_buffer = 0x00;
   state->devicesQuantity = 0x00;
   state->crc8 = 0x00;
   for (uint8_t i = 0; i < ONEWIRE_MAXDEVICES_ON_THE_BUS; i++) {
@@ -33,7 +31,6 @@ void ow_clear_state(OneWire *ow_dev) {
 }
 
 void ow_send(OneWire *ow_dev, uint8_t data) {
-  ow_dev->state.rc_flag = OW_SEND;
   ow_dev->write(data);
 }
 

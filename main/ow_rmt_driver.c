@@ -16,11 +16,11 @@ void ow_rmt_driver_init() {
   rmt_config_t _config_rx = RMT_DEFAULT_CONFIG_RX(OW_RMT_RX_PIN, OW_RMT_RX_CHANNEL);
   _config_rx.rx_config.filter_en = false;
   _config_rx.clk_div = CLK_DIV;
-  _config_rx.rx_config.idle_threshold = _IDLE_DURATION;
+  _config_rx.rx_config.idle_threshold = 80;
   ESP_ERROR_CHECK(rmt_config(&_config_rx));
   ESP_ERROR_CHECK(
       rmt_driver_install(_config_rx.channel,
-                         sizeof(rmt_item32_t) * OW_RMT_RX_BUFFER_SIZE, // из-за RINGBUF_TYPE_NOSPLIT в RingbufferType_t
+                         sizeof(rmt_item32_t) * OW_RMT_RX_BUFFER_SIZE,
                          ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED));
 }
 
@@ -30,23 +30,18 @@ static RingbufHandle_t get_rx_buffer() {
   return _rb;
 }
 
-esp_err_t ow_rmt_write(uint32_t pulse_duration_ms) {
+esp_err_t _ow_rmt_write(uint32_t pulse_duration_ms) {
   // обычное состояние шины -- подтянуто к питанию. Создаём импульс, подтягивая к земле, нужной длинны
   rmt_item32_t _ticks = OW_TICK_SLOT_MS_LOW(pulse_duration_ms);
-  ESP_LOGD("OW", "generated pulse duration: %d ticks ( %d ms, CLK_DIV = %d)", _ticks.duration0, pulse_duration_ms,
-           CLK_DIV);
   return rmt_write_items(OW_RMT_TX_CHANNEL, &_ticks, 1, true);
 }
 
-// Метод формирует импульс заданной длительности и возвращает (читает) на шине 1-wire ответный импульс, длительность
-// которого возвращает в качестве результата
-uint16_t ow_rmt_write_then_read(uint32_t pulse_duration_ms) {
+uint16_t _ow_rmt_read() {
   uint16_t _presence = 0x00;
-  ESP_ERROR_CHECK(ow_rmt_write(pulse_duration_ms));
   ESP_ERROR_CHECK(rmt_rx_start(OW_RMT_RX_CHANNEL, true));
   RingbufHandle_t _rb = get_rx_buffer();
   uint32_t length;
-  rmt_item32_t *_items = (rmt_item32_t *) xRingbufferReceive(_rb, &length, 10 / portTICK_PERIOD_MS);
+  rmt_item32_t *_items = (rmt_item32_t *) xRingbufferReceive(_rb, &length, 0.05);
   if (_items) {
     length /= 4; // one RMT = 4 Bytes
     ESP_LOGD("OW", "Bus response has got %d elements", length);
@@ -62,15 +57,23 @@ uint16_t ow_rmt_write_then_read(uint32_t pulse_duration_ms) {
         _presence = _items[i].duration1;
       }
     }
+    // после разбора данных, сбрасываем ringbuffer.
+    vRingbufferReturnItem(_rb, (void *) _items);
   }
-  // после разбора данных, сбрасываем ringbuffer.
-  vRingbufferReturnItem(_rb, (void *) _items);
   ESP_ERROR_CHECK(rmt_rx_stop(OW_RMT_RX_CHANNEL));
   return _presence;
 }
 
+// Метод формирует импульс заданной длительности и возвращает (читает) на шине 1-wire ответный импульс, длительность
+// которого возвращает в качестве результата
+uint16_t _ow_rmt_write_then_read(uint32_t pulse_duration_ms) {
+  uint16_t _presence = 0x00;
+  ESP_ERROR_CHECK(_ow_rmt_write(pulse_duration_ms));
+  return _ow_rmt_read();
+}
+
 uint16_t ow_rmt_reset(void) {
-  uint16_t _presence = OW_TICKS_TO_MS(ow_rmt_write_then_read(_RESET_DURATION));
+  uint16_t _presence = OW_TICKS_TO_MS(_ow_rmt_write_then_read(_RESET_DURATION));
   if (_presence > _PRESENCE_LOWER_BORDER && _presence < _PRESENCE_HIGH_BORDER)
     return _presence;
   else
@@ -79,10 +82,9 @@ uint16_t ow_rmt_reset(void) {
 
 void ow_rmt_send_signal(uint16_t data) {
   uint32_t _duration_ms = data ? _WRITE_1_DURATION : _WRITE_0_DURATION;
-  ow_rmt_write(_duration_ms);
+  _ow_rmt_write(_duration_ms);
 }
 
 uint16_t ow_rmt_read_signal( void ) {
-  return ow_rmt_write_then_read(_READ_DURATION);
-  return 0x00;
+  return _ow_rmt_write_then_read(_READ_DURATION);
 }

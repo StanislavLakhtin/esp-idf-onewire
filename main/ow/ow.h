@@ -59,8 +59,6 @@ typedef uint16_t ( * ow_reset_fptr_t ) ( void );
 typedef uint16_t ( * ow_read_fptr_t ) ( void );
 
 typedef struct {
-  volatile uint8_t rc_buffer;
-  volatile uint8_t rc_flag;
   uint8_t ROM_BUFFER[8];
   uint8_t lastDiscrepancy;
   uint8_t lastFamilyDiscrepancy;

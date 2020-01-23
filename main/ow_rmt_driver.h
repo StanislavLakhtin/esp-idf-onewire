@@ -49,11 +49,14 @@ extern "C"
 {
 #endif
 
+
+esp_err_t _ow_rmt_write(uint32_t pulse_duration_ms);
+uint16_t _ow_rmt_read();
+uint16_t _ow_rmt_write_then_read(uint32_t pulse_duration_ms);
+
 void ow_rmt_driver_init();
 uint16_t ow_rmt_reset( void );
 void ow_rmt_send_signal( uint16_t data );
-esp_err_t ow_rmt_write(uint32_t pulse_duration_ms);
-uint16_t ow_rmt_write_then_read(uint32_t pulse_duration_ms);
 uint16_t ow_rmt_read_signal( void );
 
 #ifdef __cplusplus
