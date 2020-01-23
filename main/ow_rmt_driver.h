@@ -18,14 +18,14 @@
 #define OW_RMT_TX_CHANNEL       RMT_CHANNEL_0
 #define OW_RMT_RX_CHANNEL       RMT_CHANNEL_1
 
-#define OW_RMT_RX_BUFFER_SIZE   28          // elements (CLK_DIV = 200, 70ms = 28 elements)
+#define OW_RMT_RX_BUFFER_SIZE   8           // elements (CLK_DIV = 200, 70ms = 28 elements)
 
 #define APB_CLK                 80000000    // todo пересчитать все tick от реального значения APB_CLK
 #define CLK_DIV                 240
 
 #define _RMT_OVERDRIVE          2
-#define _RESET_DURATION         480
-#define _RESET_IDLE_DURATION    70
+#define _RESET_DURATION         490
+#define _RESET_IDLE_DURATION    20
 #define _IDLE_DURATION          70
 
 #define OW_MS_TO_RMT_TICKS( ms )  ( ( ( ms ) * 10 ) / ( CLK_DIV / 8 )  )
