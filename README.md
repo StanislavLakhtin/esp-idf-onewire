@@ -1,6 +1,6 @@
 # UART OneWire Example
 
-This example demonstrates how to utilize UART interfaces of ESP32 to use as OneWire bus. It uses a few DS18B20 sensors to scan a bus and send CALC command.
+This example demonstrates how to utilize UART interfaces of ESP32 to use as OneWire bus. It uses a few DS18B20 sensors to scan a bus and write CALC command.
 
 ## How to use example
 
@@ -13,21 +13,14 @@ monitoring. The external interface should have 3.3V outputs. You may use e.g. 3.
 
 #### Prepare schema 3v3 and 5v negotiations
 
-```
-                            
-                        |    
-                        /
-   TX  ----/\/\/\/-----|
-```
-
 Connect the external serial interface to the ESP32 board as follows.
 
-  | ESP32 Interface | #define | ESP32 Pin | External UART Pin |
+  | ESP32 Interface | #define | ESP32 Pin 
   | --- | --- | --- | --- |
-  | Transmit Data (TxD) | ECHO_TEST_TXD | GPIO4 | RxD |
-  | Receive Data (RxD) | ECHO_TEST_RXD | GPIO5 | TxD |
+  | Transmit Data (TxD) | ECHO_TEST_TXD | GPIO16 
+  | Receive Data (RxD) | ECHO_TEST_RXD | GPIO17 
   | Ground  | n/a | GND | GND |
-  | VDD     | n/a | VDD | +5V |
+
 
 Optionally, you can set-up and use a VDD that has +3.3V
 

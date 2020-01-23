@@ -23,6 +23,8 @@ static void init() {
   ow_rmt_driver_init();
   //ow_dev.send = ow_rmt_driver_send;
   ow_dev.reset = ow_rmt_reset;
+  ow_dev.write = ow_rmt_send_signal;
+  ow_dev.read = ow_rmt_read;
 }
 
 static void ow_task(void *arg) {
@@ -50,10 +52,20 @@ static void test_task(void *arg) {
   while (1) {
     ESP_LOGI(OW_TASK_TAG, "Scan OW bus...");
     uint16_t _presence = ow_dev.reset();
-    if ( _presence > 0) {
+    if (_presence > 0) {
       ESP_LOGI(OW_TASK_TAG, "PRESENCE detected on 1-wire bus. Duration: %d ms", _presence);
-    };
-    ESP_LOGI(OW_TASK_TAG, "Transmission complete");
+      /*if (ow_scan(&ow_dev)) {
+        for (uint8_t i = 0; i < ow_dev.state.devicesQuantity; i++) {
+          if (ow_dev.rom[i].family == 0x28) {  // Found DS18B20 Temp sensor
+            float _temp = read_temperature(&ow_dev, &ow_dev.rom[i]);
+            ESP_LOGI(OW_TASK_TAG, "DS18B20 sens: %x.%x.%x.%x.%x.%x (CRC %x) -- %f (C)",
+                     ow_dev.rom[i].code[0], ow_dev.rom[i].code[1], ow_dev.rom[i].code[2],
+                     ow_dev.rom[i].code[3], ow_dev.rom[i].code[4], ow_dev.rom[i].code[5],
+                     ow_dev.rom[i].crc, _temp);
+          }
+        }
+      }*/
+    }
     vTaskDelay(3000 / portTICK_PERIOD_MS);
   }
 }

@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-#define ONEWIRE_NOBODY 0xF0
+//#define ONEWIRE_NOBODY 0xF0
 #define ONEWIRE_SEARCH 0xF0
 #define ONEWIRE_RESET 0xF0
 #define ONEWIRE_SKIP_ROM 0xCC
@@ -55,8 +55,8 @@ typedef struct {
 } RomCode;
 
 typedef void ( * ow_send_fptr_t ) ( uint16_t data );
-typedef uint16_t ( * ow_reset_fptr_t ) (void );
-typedef uint8_t ( * ow_read_fptr_t ) ( void );
+typedef uint16_t ( * ow_reset_fptr_t ) ( void );
+typedef uint16_t ( * ow_read_fptr_t ) ( void );
 
 typedef struct {
   volatile uint8_t rc_buffer;
@@ -72,19 +72,13 @@ typedef struct {
 
 typedef struct {
   RomCode rom[ONEWIRE_MAXDEVICES_ON_THE_BUS];
-  ow_send_fptr_t send;
+  ow_send_fptr_t write;
   ow_reset_fptr_t reset;
   ow_read_fptr_t read;
   OWState state;
 } OneWire;
 
 void ow_clear_state(OneWire *ow_dev);
-
-void ow_bus_get_echo_data(OneWire *ow_dev, uint16_t data);
-
-uint16_t ow_read_blocking(OneWire *ow_dev);
-
-uint16_t ow_reset_cmd(OneWire *ow_dev);
 
 uint8_t ow_find_next_ROM(OneWire *ow_dev, uint8_t search_command);
 

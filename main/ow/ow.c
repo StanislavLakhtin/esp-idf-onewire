@@ -34,7 +34,7 @@ void ow_clear_state(OneWire *ow_dev) {
 
 void ow_send(OneWire *ow_dev, uint8_t data) {
   ow_dev->state.rc_flag = OW_SEND;
-  ow_dev->send(data);
+  ow_dev->write(data);
 }
 
 void ow_send_byte(OneWire *ow_dev, uint8_t data) {
@@ -45,34 +45,9 @@ void ow_send_byte(OneWire *ow_dev, uint8_t data) {
   }
 }
 
-uint16_t ow_reset_cmd(OneWire *ow_dev) {
-  /*ow_dev->usart_setup( 9600 );
-
-  ow_send( ow_dev, ONEWIRE_RESET );
-  uint16_t owPresence = ow_read_blocking( ow_dev ); // Ждём PRESENCE на шине и вовзращаем, что есть
-
-  ow_dev->usart_setup( 115200 );*/
-  return ow_dev->reset();
-}
-
-void ow_bus_get_echo_data(OneWire *ow_dev, uint16_t data) {
-  ow_dev->state.rc_flag = OW_RECEIVED;
-  ow_dev->state.rc_buffer = (uint8_t) data;
-}
-
-uint16_t ow_read_blocking(OneWire *ow_dev) {
-  uint32_t timeout = ONEWIRE_READ_TIMEOUT;
-  while ((ow_dev->state.rc_flag == OW_SEND) && (timeout--));
-
-  if (timeout == 0)
-    return 0x00;
-  else
-    return ow_dev->state.rc_buffer;
-}
-
 uint8_t ow_read_bit(OneWire *ow_dev) {
   ow_send(ow_dev, OW_READ);
-  return ow_read_blocking(ow_dev) == OW_READ ? 0x01 : 0x00;
+  return ow_dev->read() ? 0x01 : 0x00;
 }
 
 uint8_t ow_scan(OneWire *ow_dev) {
@@ -122,7 +97,7 @@ uint8_t ow_find_next_ROM(OneWire *ow_dev, uint8_t search_command) {
   // если крайний вызов был не для крайнего устройства на шине
   if (!state->lastDeviceFlag) {
     // 1-Wire reset
-    if (ow_reset_cmd(ow_dev) == ONEWIRE_NOBODY) {
+    if ( !ow_dev->reset() ) {
       // сброс поиска
       state->lastDiscrepancy = 0;
       state->lastDeviceFlag = FALSE;
@@ -236,7 +211,8 @@ static uint8_t docrc8(OneWire *ow_dev, uint8_t value) {
 }
 
 void ow_match_rom(OneWire *ow_dev, RomCode *rom) {
-  ow_reset_cmd(ow_dev);
+  if ( !ow_dev->reset() )
+    return;
   ow_send_byte(ow_dev, ONEWIRE_MATCH_ROM);
   ow_send_byte(ow_dev, rom->family);
   for (uint8_t i = 0; i < 6; i++)

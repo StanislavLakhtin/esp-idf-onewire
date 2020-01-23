@@ -23,11 +23,13 @@
 #define APB_CLK                 80000000    // todo пересчитать все tick от реального значения APB_CLK
 #define CLK_DIV                 240
 
-#define _RMT_OVERDRIVE          2
 #define _RESET_DURATION         490
 #define _PRESENCE_LOWER_BORDER  60
 #define _PRESENCE_HIGH_BORDER   240
 #define _IDLE_DURATION          70
+#define _WRITE_1_DURATION       7
+#define _WRITE_0_DURATION       70
+#define _READ_DURATION          _WRITE_1_DURATION
 
 #define OW_MS_TO_RMT_TICKS( ms )  ( ( ( ms ) * 10 ) / ( CLK_DIV / 8 )  )
 #define OW_TICKS_TO_MS( ms )      ( ms * CLK_DIV / 80 )
@@ -48,10 +50,11 @@ extern "C"
 #endif
 
 void ow_rmt_driver_init();
-
 uint16_t ow_rmt_reset( void );
-
-void ow_rmt_driver_send( uint16_t data );
+void ow_rmt_send_signal( uint16_t data );
+esp_err_t ow_rmt_write(uint32_t pulse_duration_ms);
+uint16_t ow_rmt_write_then_read(uint32_t pulse_duration_ms);
+uint16_t ow_rmt_read_signal( void );
 
 #ifdef __cplusplus
 }
