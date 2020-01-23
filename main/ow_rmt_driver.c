@@ -15,9 +15,8 @@ esp_err_t ow_rmt_driver_init() {
                          ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED));
   rmt_config_t _config_rx = RMT_DEFAULT_CONFIG_RX(OW_RMT_RX_PIN, OW_RMT_RX_CHANNEL);
   _config_rx.rx_config.filter_en = true;
-  _config_rx.rx_config.filter_ticks_thresh = 0;
+  _config_rx.rx_config.filter_ticks_thresh = OW_MS_TO_RMT_TICKS(_THRESHOLD_DURATION);
   _config_rx.clk_div = CLK_DIV;
-  _config_rx.rx_config.idle_threshold = OW_MS_TO_RMT_TICKS(_RESET_DURATION);  // в тиках!
   ESP_ERROR_CHECK(rmt_config(&_config_rx));
   ESP_ERROR_CHECK(
       rmt_driver_install(_config_rx.channel,
@@ -74,7 +73,11 @@ uint32_t _ow_rmt_write_then_read(uint32_t pulse_duration_ms) {
 }
 
 uint16_t ow_rmt_reset(void) {
+  uint16_t old_thresh = 0x00;
+  rmt_get_rx_idle_thresh(OW_RMT_RX_CHANNEL, &old_thresh);
+  rmt_set_rx_idle_thresh(OW_RMT_RX_CHANNEL, OW_MS_TO_RMT_TICKS(_RESET_DURATION + _THRESHOLD_DURATION));
   uint16_t _presence = OW_TICKS_TO_MS(_ow_rmt_write_then_read(_RESET_DURATION));
+  rmt_set_rx_idle_thresh(OW_RMT_RX_CHANNEL, old_thresh);
   ESP_LOGD("OW", "presence %d ms", _presence);
   if (_presence > _PRESENCE_LOWER_BORDER && _presence < _PRESENCE_HIGH_BORDER)
     return _presence;
@@ -88,10 +91,5 @@ void ow_rmt_send_signal(uint16_t data) {
 }
 
 uint16_t ow_rmt_read_signal( void ) {
-  uint16_t old_thresh = 0x00;
-  rmt_get_rx_idle_thresh(OW_RMT_RX_CHANNEL, &old_thresh);
-  rmt_set_rx_idle_thresh(OW_RMT_RX_CHANNEL, OW_MS_TO_RMT_TICKS(_THRESHOLD_DURATION));
-  uint32_t _rslt = _ow_rmt_read(_READ_DURATION);
-  rmt_set_rx_idle_thresh(OW_RMT_RX_CHANNEL, old_thresh);
-  return _rslt;
+  return _ow_rmt_read();
 }
