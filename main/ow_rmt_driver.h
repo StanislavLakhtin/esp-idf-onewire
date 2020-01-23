@@ -18,7 +18,7 @@
 #define OW_RMT_TX_CHANNEL       RMT_CHANNEL_0
 #define OW_RMT_RX_CHANNEL       RMT_CHANNEL_1
 
-#define OW_RMT_RX_BUFFER_SIZE   8           // elements (CLK_DIV = 200, 70ms = 28 elements)
+#define OW_RMT_RX_BUFFER_SIZE   100         //
 
 #define APB_CLK                 80000000    // todo пересчитать все tick от реального значения APB_CLK
 #define CLK_DIV                 240
@@ -26,7 +26,7 @@
 #define _RESET_DURATION         490
 #define _PRESENCE_LOWER_BORDER  60
 #define _PRESENCE_HIGH_BORDER   240
-#define _IDLE_DURATION          70
+#define _THRESHOLD_DURATION     70
 #define _WRITE_1_DURATION       7
 #define _WRITE_0_DURATION       70
 #define _READ_DURATION          _WRITE_1_DURATION
@@ -51,10 +51,10 @@ extern "C"
 
 
 esp_err_t _ow_rmt_write(uint32_t pulse_duration_ms);
-uint16_t _ow_rmt_read();
-uint16_t _ow_rmt_write_then_read(uint32_t pulse_duration_ms);
+uint32_t _ow_rmt_read();
+uint32_t _ow_rmt_write_then_read(uint32_t pulse_duration_ms);
 
-void ow_rmt_driver_init();
+esp_err_t ow_rmt_driver_init();
 uint16_t ow_rmt_reset( void );
 void ow_rmt_send_signal( uint16_t data );
 uint16_t ow_rmt_read_signal( void );

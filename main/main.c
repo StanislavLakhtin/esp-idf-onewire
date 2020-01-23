@@ -23,13 +23,13 @@ OneWire ow_dev = {
 const char *OW_TASK_TAG = "1wire";
 
 static void init() {
-  ow_rmt_driver_init();
+  ESP_ERROR_CHECK(ow_rmt_driver_init());
 }
 
-static void test_task(void *arg) {
+static void test_driver_task(void *arg) {
   while (1) {
     uint16_t _presence = ow_dev.reset();
-    if (_presence > 0) {
+    if ( _presence ) {
       ESP_LOGI(OW_TASK_TAG, "PRESENCE detected on 1-wire bus. Duration: %d ms", _presence);
       ESP_LOGI(OW_TASK_TAG, "Scan OW bus...");
       if (ow_scan(&ow_dev)) {
@@ -43,9 +43,9 @@ static void test_task(void *arg) {
           }
         }
       }
-      ESP_LOGI(OW_TASK_TAG, "Presence correct. There are %d devices on the bus", ow_dev.state.devicesQuantity);
+      ESP_LOGI(OW_TASK_TAG, "Presence correct. SCAN found %d devices on the bus", ow_dev.state.devicesQuantity);
     } else {
-      ESP_LOGI(OW_TASK_TAG, "There are no any device on 1-wire bus");
+      ESP_LOGW(OW_TASK_TAG, "There are no any device on 1-wire bus");
     }
     vTaskDelay(3000 / portTICK_PERIOD_MS);
   }
@@ -53,5 +53,5 @@ static void test_task(void *arg) {
 
 void app_main(void) {
   init();
-  xTaskCreate(test_task, "test_wo_rmt_task", 2048, NULL, 10, NULL);
+  xTaskCreate(test_driver_task, "test_driver_task", 2048, NULL, 10, NULL);
 }
