@@ -4,3 +4,4 @@ build/
 *.a
 *.o
 clion.build/
+sdkconfig
