@@ -40,7 +40,7 @@ esp_err_t _ow_rmt_write(uint32_t pulse_duration_ms) {
 
 uint32_t _ow_rmt_read() {
   uint16_t _presence = 0x00;
-  ESP_ERROR_CHECK(rmt_rx_start(OW_RMT_RX_CHANNEL, false));
+  ESP_ERROR_CHECK(rmt_rx_start(OW_RMT_RX_CHANNEL, true));
   RingbufHandle_t _rb = get_rx_buffer();
   uint32_t length;
   rmt_item32_t *_items = (rmt_item32_t *) xRingbufferReceive(_rb, &length, 10);
