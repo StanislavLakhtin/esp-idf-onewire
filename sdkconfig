@@ -919,12 +919,6 @@ CONFIG_WPA_MBEDTLS_CRYPTO=y
 # CONFIG_LEGACY_INCLUDE_COMMON_HEADERS is not set
 # end of Compatibility options
 
-#
-# EduTerra.PRO ST7789V Display
-#
-# CONFIG_EDUTERRA_ST7789V is not set
-# end of EduTerra.PRO ST7789V Display
-
 # Deprecated options for backward compatibility
 CONFIG_TOOLPREFIX="xtensa-esp32-elf-"
 # CONFIG_LOG_BOOTLOADER_LEVEL_NONE is not set
