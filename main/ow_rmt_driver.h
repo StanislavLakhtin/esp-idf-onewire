@@ -25,10 +25,12 @@
 
 #define _RMT_OVERDRIVE          2
 #define _RESET_DURATION         490
-#define _RESET_IDLE_DURATION    20
+#define _PRESENCE_LOWER_BORDER  60
+#define _PRESENCE_HIGH_BORDER   240
 #define _IDLE_DURATION          70
 
 #define OW_MS_TO_RMT_TICKS( ms )  ( ( ( ms ) * 10 ) / ( CLK_DIV / 8 )  )
+#define OW_TICKS_TO_MS( ms )      ( ms * CLK_DIV / 80 )
 
 #define OW_TICK_SLOT_MS_LOW( low_duration_ms )   \
     {                                                             \

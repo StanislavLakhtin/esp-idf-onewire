@@ -11,7 +11,14 @@ monitoring. The external interface should have 3.3V outputs. You may use e.g. 3.
 
 ### Setup the Hardware
 
-#todo
+#### Prepare schema 3v3 and 5v negotiations
+
+```
+                            
+                        |    
+                        /
+   TX  ----/\/\/\/-----|
+```
 
 Connect the external serial interface to the ESP32 board as follows.
 

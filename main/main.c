@@ -49,9 +49,12 @@ static void ow_task(void *arg) {
 static void test_task(void *arg) {
   while (1) {
     ESP_LOGI(OW_TASK_TAG, "Scan OW bus...");
-    ow_dev.reset();
+    uint16_t _presence = ow_dev.reset();
+    if ( _presence > 0) {
+      ESP_LOGI(OW_TASK_TAG, "PRESENCE detected on 1-wire bus. Duration: %d ms", _presence);
+    };
     ESP_LOGI(OW_TASK_TAG, "Transmission complete");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
   }
 }
 
