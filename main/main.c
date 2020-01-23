@@ -15,15 +15,15 @@
 #include <esp_log.h>
 #include "ow_rmt_driver.h"
 
-OneWire ow_dev;
+OneWire ow_dev = {
+    .reset = ow_rmt_reset,
+    .write = ow_rmt_send_signal,
+    .read = ow_rmt_read_signal
+};
 const char *OW_TASK_TAG = "1wire";
 
 static void init() {
   ow_rmt_driver_init();
-  //ow_dev.send = ow_rmt_driver_send;
-  ow_dev.reset = ow_rmt_reset;
-  ow_dev.write = ow_rmt_send_signal;
-  ow_dev.read = ow_rmt_read_signal;
 }
 
 static void test_task(void *arg) {
@@ -43,6 +43,7 @@ static void test_task(void *arg) {
           }
         }
       }
+      ESP_LOGI(OW_TASK_TAG, "Presence correct. There are %d devices on the bus", ow_dev.state.devicesQuantity);
     } else {
       ESP_LOGI(OW_TASK_TAG, "There are no any device on 1-wire bus");
     }
