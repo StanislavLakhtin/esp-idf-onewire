@@ -12,6 +12,7 @@
 #include "esp_log.h"
 #include "ow/ow.h"
 #include <ow/ds18b20.h>
+#include <soc/uart_struct.h>
 
 #define OW_RMT_TX_PIN           GPIO_NUM_16
 #define OW_RMT_RX_PIN           GPIO_NUM_17

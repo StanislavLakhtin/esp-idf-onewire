@@ -12,12 +12,17 @@
 #include <esp_log.h>
 #include "ow_uart_driver.h"
 
-static int _baud_rate = OW_DEFAULT_BAUDRATE;
-static volatile bool _baud_rate_can_change = true;
-uart_isr_handle_t *handle_ow_uart = NULL;
+static OW_UART_DEV uart_dev = {
+    .dev = UART_LL_GET_HW(OW_UART_NUM),
+    .last_baud_rate = OW_DEFAULT_BAUDRATE,
+    .last_read = 0x00,
+    .handle_ow_uart = NULL,
+    ._baud_rate_can_change = true
+};
 
 static void IRAM_ATTR uart_intr_handle() {
-  _baud_rate_can_change = true;
+  uart_dev._baud_rate_can_change = true;
+  uart_ll_read_rxfifo(uart_dev.dev, &uart_dev.last_read, 0x01);
   uart_clear_intr_status(OW_UART_NUM, UART_INTR_MASK);
 }
 
@@ -25,26 +30,28 @@ esp_err_t ow_uart_driver_init() {
   uart_config_t uart_config = OW_UART_CONFIG(OW_DEFAULT_BAUDRATE);
   ESP_ERROR_CHECK(uart_param_config(OW_UART_NUM, &uart_config));
   ESP_ERROR_CHECK(uart_set_pin(OW_UART_NUM, OW_UART_TXD, OW_UART_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-  uart_dev_t *uart_dev = UART_LL_GET_HW(OW_UART_NUM);
-  uart_ll_ena_intr_mask(uart_dev, UART_INTR_TX_DONE);
+  uart_ll_ena_intr_mask(uart_dev.dev, UART_INTR_TX_DONE);
   ESP_ERROR_CHECK(uart_isr_register(OW_UART_NUM, uart_intr_handle, NULL,
                                     ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM,
-                                    handle_ow_uart));
+                                    uart_dev.handle_ow_uart));
   return ESP_OK;
 }
 
 
 esp_err_t _ow_uart_write(uint32_t baudrate, uint8_t *data, size_t len) {
-  uart_dev_t *uart_dev = UART_LL_GET_HW(OW_UART_NUM);
-  if (_baud_rate != baudrate) {
-    while ( !_baud_rate_can_change );
-    _baud_rate_can_change = false;
+  if (uart_dev.last_baud_rate != baudrate) {
+    while ( !uart_dev._baud_rate_can_change );
+    uart_dev._baud_rate_can_change = false;
       //periph_module_disable(uart_periph_signal[OW_UART_NUM].module);
      ESP_ERROR_CHECK(uart_set_baudrate(OW_UART_NUM, baudrate));
-    _baud_rate = baudrate;
+    uart_dev.last_baud_rate = baudrate;
     //periph_module_reset(uart_periph_signal[OW_UART_NUM].module);
     //periph_module_enable(uart_periph_signal[OW_UART_NUM].module);
   }
-  uart_ll_write_txfifo(uart_dev, data, len);
+  uart_ll_write_txfifo(uart_dev.dev, data, len);
   return ESP_OK;
+}
+
+uint32_t _ow_uart_read() {
+  return uart_dev.last_read;
 }

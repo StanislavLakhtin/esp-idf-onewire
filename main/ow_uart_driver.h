@@ -37,6 +37,14 @@
             .source_clk = UART_SCLK_APB,      \
           }
 
+typedef struct {
+  uart_dev_t * dev;
+  uint8_t last_read;
+  uint32_t last_baud_rate;
+  uart_isr_handle_t * handle_ow_uart;
+  bool _baud_rate_can_change;
+} OW_UART_DEV;
+
 #ifdef __cplusplus
 extern "C"
 {
