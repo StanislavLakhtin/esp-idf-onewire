@@ -17,7 +17,7 @@ static OW_UART_DEV uart_dev = {
     .last_baud_rate = OW_DEFAULT_BAUDRATE,
     .last_read = 0x00,
     .handle_ow_uart = NULL,
-    ._baud_rate_can_change = true
+    ._baud_rate_can_change = true  // TODO change to xSemaphore to ISR
 };
 
 static void IRAM_ATTR uart_intr_handle() {
