@@ -17,7 +17,7 @@ static OW_UART_DEV uart_dev = {
     .last_baud_rate = OW_9600_BAUDRATE,
     .rx = 0x00,
     .handle_ow_uart = NULL,
-    ._tx_done = true  // TODO change to xSemaphore to ISR ?
+    .tx_done = true                   // TODO change to xSemaphore to ISR ?
 };
 
 static volatile uint8_t RX_BUFFER[BUF_SIZE];
@@ -33,8 +33,8 @@ static void IRAM_ATTR uart_intr_handle() {
         _fifo_len -= _read_len;
         uart_dev.rx = RX_BUFFER[ _read_len - 1 ];        // Store last RX uint8_t
       }
-      uart_ll_rxfifo_rst( uart_dev.dev );                 // reset RX FIFO
-      uart_dev._tx_done = true;
+      uart_ll_rxfifo_rst( uart_dev.dev );                // reset RX FIFO
+      uart_dev.tx_done = true;
       uart_clear_intr_status(OW_UART_NUM, UART_INTR_MASK);
       break;
   }
@@ -55,14 +55,14 @@ esp_err_t ow_uart_driver_init() {
 
 esp_err_t _ow_uart_write( uint32_t baudrate, uint8_t * data, size_t len ) {
   OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE( baudrate )
-  uart_dev._tx_done = false;
+  uart_dev.tx_done = false;
   uart_ll_write_txfifo( uart_dev.dev, data, len );
   return ESP_OK;
 }
 
 esp_err_t _ow_uart_write_byte( uint32_t baudrate, uint8_t data ) {
   OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE( baudrate )
-  uart_dev._tx_done = false;
+  uart_dev.tx_done = false;
   uart_ll_write_txfifo( uart_dev.dev, &data, 0x01 );
   return ESP_OK;
 }
@@ -73,7 +73,7 @@ uint32_t _ow_uart_read() {
 
 uint16_t ow_uart_reset( void ) {
   _ow_uart_write_byte( OW_9600_BAUDRATE, ONEWIRE_RESET );
-  WAIT_TX_DONE         // TODO add delay after
+  WAIT_TX_DONE
   return _ow_uart_read();
 }
 
