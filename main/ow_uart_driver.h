@@ -5,6 +5,7 @@
 #ifndef ONEWIRE_UART_OW_UART_DRIVER_H
 #define ONEWIRE_UART_OW_UART_DRIVER_H
 #include "driver/uart.h"
+#include "driver/periph_ctrl.h"
 #include "hal/gpio_types.h"
 #include "hal/uart_hal.h"
 
@@ -14,6 +15,8 @@
 #define BUF_SIZE        50
 
 #define loop while (true)
+
+#define OW_DEFAULT_BAUDRATE   9600
 
 #define OW_UART_CONFIG(baudrate)             \
           {                                   \
@@ -31,7 +34,7 @@ extern "C"
 #endif
 
 
-esp_err_t _ow_uart_write(uint8_t *data, uint32_t len);
+esp_err_t _ow_uart_write(uint32_t baudrate, uint8_t *data, uint32_t len);
 uint32_t _ow_uart_read();
 uint32_t _ow_uart_write_then_read(uint32_t pulse_duration_ms);
 
