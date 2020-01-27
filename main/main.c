@@ -57,6 +57,7 @@ static void test_task(void *arg) {
     _ow_uart_write(9600, OW_TASK_TAG, 1);
     vTaskDelay(10 / portTICK_PERIOD_MS);
     _ow_uart_write(115200, OW_TASK_TAG, strlen(OW_TASK_TAG));
+    _ow_uart_write(115200, OW_TASK_TAG, strlen(OW_TASK_TAG));
     vTaskDelay(3000 / portTICK_PERIOD_MS);
   };
 }
