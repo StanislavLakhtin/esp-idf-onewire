@@ -13,13 +13,14 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <esp_log.h>
-#include "ow_rmt_driver.h"
+#include "ow/ow.h"
+#include "ow/ds18b20.h"
 #include "ow_uart_driver.h"
 
 OneWire ow_dev = {
-    .reset = ow_rmt_reset,
-    .write = ow_rmt_send_signal,
-    .read = ow_rmt_read_signal
+    .reset = ow_uart_reset,
+    .write = ow_uart_send_signal,
+    .read = ow_uart_read_signal
 };
 const char *OW_TASK_TAG = "1wire";
 
@@ -65,6 +66,6 @@ static void test_task(void *arg) {
 
 void app_main(void) {
   init();
-  //xTaskCreate(test_driver_task, "test_driver_task", 2048, NULL, 10, NULL);
-  xTaskCreate(test_task, "test_task", 2048, NULL, 10, NULL);
+  xTaskCreate(test_driver_task, "test_driver_task", 2048, NULL, 10, NULL);
+  //xTaskCreate(test_task, "test_task", 2048, NULL, 10, NULL);
 }

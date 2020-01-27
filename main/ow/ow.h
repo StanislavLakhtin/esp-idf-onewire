@@ -12,9 +12,7 @@
 
 #include <stdint.h>
 
-//#define ONEWIRE_NOBODY 0xF0
 #define ONEWIRE_SEARCH 0xF0
-#define ONEWIRE_RESET 0xF0
 #define ONEWIRE_SKIP_ROM 0xCC
 #define ONEWIRE_READ_ROM 0x33
 #define ONEWIRE_MATCH_ROM 0x55

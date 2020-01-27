@@ -11,6 +11,7 @@
 
 #ifndef ONEWIRE_UART_OW_UART_DRIVER_H
 #define ONEWIRE_UART_OW_UART_DRIVER_H
+#include <string.h>
 #include "driver/uart.h"
 #include "driver/periph_ctrl.h"
 #include "hal/gpio_types.h"
@@ -21,11 +22,18 @@
 #define OW_UART_RXD     GPIO_NUM_17
 #define BUF_SIZE        12
 
-#define LONGWAIT        1000
+#define LONGWAIT                  1000
+
+#define ONEWIRE_RESET 0xF0
 
 #define loop while (true)
 
-#define OW_DEFAULT_BAUDRATE   9600
+#define OW_9600_BAUDRATE       9600
+#define OW_115200_BAUDRATE   115200
+
+#define OW_SIGNAL_0                    0x00 // 0x00 --default
+#define OW_SIGNAL_1                    0xff
+#define OW_SIGNAL_READ                 0xff
 
 #define OW_UART_CONFIG(baudrate)             \
           {                                   \
@@ -37,12 +45,21 @@
             .source_clk = UART_SCLK_APB,      \
           }
 
+#define WAIT_TX_DONE  while ( !uart_dev._tx_done );
+
+#define OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)    \
+  if ( uart_dev.last_baud_rate != baudrate ) {          \
+    WAIT_TX_DONE                                        \
+    ESP_ERROR_CHECK( uart_set_baudrate( OW_UART_NUM, baudrate )); \
+    uart_dev.last_baud_rate = baudrate; \
+  }
+
 typedef struct {
   uart_dev_t * dev;
-  uint8_t last_read;
+  uint8_t rx;
   uint32_t last_baud_rate;
   uart_isr_handle_t * handle_ow_uart;
-  bool _baud_rate_can_change;
+  bool _tx_done;
 } OW_UART_DEV;
 
 #ifdef __cplusplus
@@ -52,8 +69,8 @@ extern "C"
 
 
 esp_err_t _ow_uart_write(uint32_t baudrate, uint8_t * data, size_t len);
+esp_err_t _ow_uart_write_byte(uint32_t baudrate, uint8_t data);
 uint32_t _ow_uart_read();
-uint32_t _ow_uart_write_then_read(uint32_t pulse_duration_ms);
 
 esp_err_t ow_uart_driver_init();
 uint16_t ow_uart_reset( void );
