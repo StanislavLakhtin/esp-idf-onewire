@@ -1,6 +1,13 @@
-//
-// Created by Stanislav Lakhtin on 27/01/2020.
-//
+/* UART Echo Example
+ *
+ * Created by Stanislav Lakhtin on 06.01.2020.
+
+   This example code is in the Public Domain (or CC0 licensed, at your option.)
+
+   Unless required by applicable law or agreed to in writing, this
+   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+   CONDITIONS OF ANY KIND, either express or implied.
+*/
 
 #ifndef ONEWIRE_UART_OW_UART_DRIVER_H
 #define ONEWIRE_UART_OW_UART_DRIVER_H
@@ -12,7 +19,7 @@
 #define OW_UART_NUM     UART_NUM_1
 #define OW_UART_TXD     GPIO_NUM_16
 #define OW_UART_RXD     GPIO_NUM_17
-#define BUF_SIZE        50
+#define BUF_SIZE        12
 
 #define LONGWAIT        1000
 
