@@ -14,6 +14,7 @@
 #include "freertos/task.h"
 #include <esp_log.h>
 #include "ow_rmt_driver.h"
+#include "ow_uart_driver.h"
 
 OneWire ow_dev = {
     .reset = ow_rmt_reset,
@@ -23,7 +24,7 @@ OneWire ow_dev = {
 const char *OW_TASK_TAG = "1wire";
 
 static void init() {
-  ESP_ERROR_CHECK(ow_rmt_driver_init());
+  ESP_ERROR_CHECK(ow_uart_driver_init());
 }
 
 static void test_driver_task(void *arg) {
@@ -51,7 +52,15 @@ static void test_driver_task(void *arg) {
   }
 }
 
+static void test_task(void *arg) {
+  loop {
+    _ow_uart_write(OW_TASK_TAG, strlen(OW_TASK_TAG));
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
+  };
+}
+
 void app_main(void) {
   init();
-  xTaskCreate(test_driver_task, "test_driver_task", 2048, NULL, 10, NULL);
+  //xTaskCreate(test_driver_task, "test_driver_task", 2048, NULL, 10, NULL);
+  xTaskCreate(test_task, "test_task", 2048, NULL, 10, NULL);
 }
