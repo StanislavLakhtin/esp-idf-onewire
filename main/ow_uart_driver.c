@@ -25,7 +25,8 @@ esp_err_t ow_uart_driver_init() {
   uart_config_t uart_config = OW_UART_CONFIG(OW_DEFAULT_BAUDRATE);
   ESP_ERROR_CHECK(uart_param_config(OW_UART_NUM, &uart_config));
   ESP_ERROR_CHECK(uart_set_pin(OW_UART_NUM, OW_UART_TXD, OW_UART_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-  ESP_ERROR_CHECK(uart_enable_intr_mask(OW_UART_NUM, UART_INTR_TX_DONE | UART_INTR_TXFIFO_EMPTY));
+  uart_dev_t *uart_dev = UART_LL_GET_HW(OW_UART_NUM);
+  uart_ll_ena_intr_mask(uart_dev, UART_INTR_TX_DONE);
   ESP_ERROR_CHECK(uart_isr_register(OW_UART_NUM, uart_intr_handle, NULL,
                                     ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM,
                                     handle_ow_uart));
@@ -36,7 +37,7 @@ esp_err_t ow_uart_driver_init() {
 esp_err_t _ow_uart_write(uint32_t baudrate, uint8_t *data, size_t len) {
   uart_dev_t *uart_dev = UART_LL_GET_HW(OW_UART_NUM);
   if (_baud_rate != baudrate) {
-    //while ( !_baud_rate_can_change );
+    while ( !_baud_rate_can_change );
     _baud_rate_can_change = false;
       //periph_module_disable(uart_periph_signal[OW_UART_NUM].module);
      ESP_ERROR_CHECK(uart_set_baudrate(OW_UART_NUM, baudrate));
