@@ -20,7 +20,6 @@
 #define OW_UART_NUM     UART_NUM_1
 #define OW_UART_TXD     GPIO_NUM_16
 #define OW_UART_RXD     GPIO_NUM_17
-#define BUF_SIZE        256
 
 #define ONEWIRE_RESET 0xF0
 
@@ -54,13 +53,13 @@
             .source_clk = UART_SCLK_APB,      \
           }
 
-#define WAIT_TX_DONE  while ( !ow_uart.tx_done );
+#define WAIT_UNTIL_DONE(what_we_wait)  while ( !what_we_wait );
 
-#define OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)    \
-  if ( ow_uart.last_baud_rate != baudrate ) {          \
-    WAIT_TX_DONE                                        \
+#define OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)           \
+  if ( ow_uart.last_baud_rate != baudrate ) {                     \
+    WAIT_UNTIL_DONE( ow_uart.tx_done )                            \
     ESP_ERROR_CHECK( uart_set_baudrate( OW_UART_NUM, baudrate )); \
-    ow_uart.last_baud_rate = baudrate; \
+    ow_uart.last_baud_rate = baudrate;                            \
   }
 
 typedef struct {
@@ -70,6 +69,7 @@ typedef struct {
   uint32_t last_baud_rate;
   uart_isr_handle_t * handle_ow_uart;
   bool tx_done;
+  bool rx_done;
 } OW_UART_DEV;
 
 #ifdef __cplusplus
@@ -77,8 +77,6 @@ extern "C"
 {
 #endif
 
-
-esp_err_t _ow_uart_write(uint32_t baudrate, uint8_t * data, size_t len);
 esp_err_t _ow_uart_write_byte(uint32_t baudrate, uint8_t data);
 uint32_t _ow_uart_read();
 
