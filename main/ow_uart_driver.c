@@ -45,7 +45,6 @@ esp_err_t ow_uart_driver_init() {
   ow_uart.rx_fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_REG(1) : UART_FIFO_REG(2);
   ow_uart.tx_fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_AHB_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_AHB_REG(1) : UART_FIFO_AHB_REG(2);
   ow_uart.dev->conf1.rxfifo_full_thrhd = 1;
-  //ow_uart.dev->conf1.rx_tout_thrhd = 10;
   return ESP_OK;
 }
 
