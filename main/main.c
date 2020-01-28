@@ -47,7 +47,7 @@ static void test_driver_task(void *arg) {
       }
       ESP_LOGI(OW_TASK_TAG, "Presence correct. SCAN found %d devices on the bus", ow_dev.state.devicesQuantity);
     } else {
-      ESP_LOGW(OW_TASK_TAG, "There are no any device on 1-wire bus");
+      ESP_LOGW(OW_TASK_TAG, "There are no any device on 1-wire bus. ");
     }
     vTaskDelay(3000 / portTICK_PERIOD_MS);
   }
@@ -55,17 +55,15 @@ static void test_driver_task(void *arg) {
 
 static void test_task(void *arg) {
   loop {
-    _ow_uart_write(9600, OW_TASK_TAG, 1);
-    //vTaskDelay(10 / portTICK_PERIOD_MS);
-    _ow_uart_write(115200, OW_TASK_TAG, strlen(OW_TASK_TAG));
-    _ow_uart_write(115200, OW_TASK_TAG, strlen(OW_TASK_TAG));
-    ESP_LOGI(OW_TASK_TAG, ". last read: %d", _ow_uart_read());
+    uint16_t _r = ow_uart_reset();
+    ESP_LOGI(OW_TASK_TAG, "Reset response: %d", _r);
+    //ESP_LOGI(OW_TASK_TAG, "Response RX: %d", _ow_uart_read());
     vTaskDelay(3000 / portTICK_PERIOD_MS);
   };
 }
 
 void app_main(void) {
   init();
-  xTaskCreate(test_driver_task, "test_driver_task", 2048, NULL, 10, NULL);
-  //xTaskCreate(test_task, "test_task", 2048, NULL, 10, NULL);
+  //xTaskCreate(test_driver_task, "test_driver_task", 2048, NULL, 10, NULL);
+  xTaskCreate(test_task, "test_task", 2048, NULL, 10, NULL);
 }
