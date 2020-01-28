@@ -12,7 +12,7 @@
 #include <esp_log.h>
 #include "ow_uart_driver.h"
 
-static volatile OW_UART_DEV uart_dev = {
+static volatile OW_UART_DEV ow_uart = {
     .dev = UART_LL_GET_HW(OW_UART_NUM),
     .last_baud_rate = OW_9600_BAUDRATE,
     .rx = 0x00,
@@ -23,50 +23,52 @@ static volatile OW_UART_DEV uart_dev = {
 static uint8_t RX_BUFFER[BUF_SIZE];
 
 static void IRAM_ATTR uart_intr_handle() {
-  uint32_t _flags = uart_ll_get_intsts_mask(uart_dev.dev);
-  if (_flags == UART_INTR_TX_DONE ) {
-    uart_ll_rxfifo_rst(uart_dev.dev);                // reset RX FIFO
-    uart_dev.tx_done = true;
+  uint32_t _flags = uart_ll_get_intsts_mask(ow_uart.dev);
+  switch (_flags ) {
+    case UART_INTR_TX_DONE:
+      ow_uart.tx_done = true;
+      break;
   }
   uart_clear_intr_status(OW_UART_NUM, UART_INTR_MASK);
 }
 
 esp_err_t ow_uart_driver_init() {
-  uart_config_t uart_config = OW_UART_CONFIG(uart_dev.last_baud_rate);
+  uart_config_t uart_config = OW_UART_CONFIG(ow_uart.last_baud_rate);
   ESP_ERROR_CHECK(uart_param_config(OW_UART_NUM, &uart_config));
   ESP_ERROR_CHECK(uart_set_pin(OW_UART_NUM, OW_UART_TXD, OW_UART_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-  uart_ll_ena_intr_mask(uart_dev.dev, UART_INTR_TX_DONE);
+  uart_ll_ena_intr_mask(ow_uart.dev, UART_INTR_TX_DONE );
   ESP_ERROR_CHECK(uart_isr_register(OW_UART_NUM, uart_intr_handle, NULL,
                                     ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM,
-                                    uart_dev.handle_ow_uart));
-  memset(RX_BUFFER, 0x00, sizeof(uint8_t) * BUF_SIZE);
+                                    ow_uart.handle_ow_uart));
+  ow_uart.fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_REG(1) : UART_FIFO_REG(2);
   return ESP_OK;
 }
 
 
+
+
 esp_err_t _ow_uart_write(uint32_t baudrate, uint8_t *data, size_t len) {
   OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)
-  uart_dev.tx_done = false;
-  uart_ll_write_txfifo(uart_dev.dev, data, len);
+  ow_uart.tx_done = false;
+  uart_ll_write_txfifo(ow_uart.dev, data, len);
   return ESP_OK;
 }
 
 esp_err_t _ow_uart_write_byte(uint32_t baudrate, uint8_t data) {
   OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)
-  uart_dev.tx_done = false;
-  uart_ll_write_txfifo(uart_dev.dev, &data, 0x01);
+  ow_uart.tx_done = false;
+  uart_ll_rxfifo_rst(ow_uart.dev);
+  uart_ll_write_txfifo(ow_uart.dev, &data, 0x01);
   return ESP_OK;
 }
 
 inline uint32_t _ow_uart_read() {
-  uint32_t _len = uart_ll_get_rxfifo_len(uart_dev.dev);
-  if (_len > 0) {
-    uart_ll_read_rxfifo(uart_dev.dev, RX_BUFFER, _len);
-    uart_dev.rx = RX_BUFFER[_len - 1];
-  } else {
-    uart_dev.rx = 0x00;
-  }
-  return uart_dev.rx;
+  uint32_t _len = uart_ll_get_rxfifo_len(ow_uart.dev);
+  uart_ll_read_rxfifo(ow_uart.dev, RX_BUFFER, _len);
+  ow_uart.rx = (_len > 0) ? RX_BUFFER[_len - 1] : 0x00;
+  ESP_LOGI("OWDriver", "read: %c%c%c%c%c%c%c%c fifo length: %d", BYTE_TO_BINARY(ow_uart.rx), _len);
+  uart_ll_rxfifo_rst(ow_uart.dev);
+  return ow_uart.rx;
 }
 
 uint16_t ow_uart_reset(void) {

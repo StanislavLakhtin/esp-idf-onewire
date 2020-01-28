@@ -26,6 +26,17 @@
 
 #define loop while (true)
 
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+  (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
+
 #define OW_9600_BAUDRATE       9600
 #define OW_115200_BAUDRATE   115200
 
@@ -43,17 +54,18 @@
             .source_clk = UART_SCLK_APB,      \
           }
 
-#define WAIT_TX_DONE  while ( !uart_dev.tx_done );
+#define WAIT_TX_DONE  while ( !ow_uart.tx_done );
 
 #define OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)    \
-  if ( uart_dev.last_baud_rate != baudrate ) {          \
+  if ( ow_uart.last_baud_rate != baudrate ) {          \
     WAIT_TX_DONE                                        \
     ESP_ERROR_CHECK( uart_set_baudrate( OW_UART_NUM, baudrate )); \
-    uart_dev.last_baud_rate = baudrate; \
+    ow_uart.last_baud_rate = baudrate; \
   }
 
 typedef struct {
   uart_dev_t * dev;
+  uint32_t fifo_addr;
   uint8_t rx;
   uint32_t last_baud_rate;
   uart_isr_handle_t * handle_ow_uart;
