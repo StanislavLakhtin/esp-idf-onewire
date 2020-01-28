@@ -25,7 +25,8 @@ static void IRAM_ATTR uart_intr_handle() {
   uint16_t _len = uart_ll_get_rxfifo_len(ow_uart.dev);
   if ( ow_uart.dev->int_st.val & UART_INTR_TX_DONE) {
     ow_uart.tx_done = true;
-  } else if ( ow_uart.dev->int_st.val & UART_INTR_RXFIFO_FULL) {
+  }
+  if ( ow_uart.dev->int_st.val & UART_INTR_RXFIFO_FULL) {
     while (_len) {
       ow_uart.rx = READ_PERI_REG(ow_uart.rx_fifo_addr);
       _len -=1;
