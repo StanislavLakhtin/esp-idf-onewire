@@ -64,12 +64,12 @@
 
 typedef struct {
   uart_dev_t * dev;
-  uint32_t fifo_addr;
+  uint32_t rx_fifo_addr;
+  uint32_t tx_fifo_addr;
   uint8_t rx;
   uint32_t last_baud_rate;
   uart_isr_handle_t * handle_ow_uart;
   bool tx_done;
-  bool rx_done;
 } OW_UART_DEV;
 
 #ifdef __cplusplus

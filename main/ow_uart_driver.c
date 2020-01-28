@@ -19,18 +19,17 @@ static volatile OW_UART_DEV ow_uart = {
     .rx = 0x00,
     .handle_ow_uart = NULL,
     .tx_done = true,                   // TODO change to xSemaphore to ISR ?
-    .rx_done = false
 };
 
 static void IRAM_ATTR uart_intr_handle() {
-  switch ( ow_uart.dev->int_st.val) {
-    case UART_INTR_TX_DONE:
-      ow_uart.tx_done = true;
-      break;
-    case UART_INTR_RXFIFO_FULL:
-      ow_uart.rx = ow_uart.dev->fifo.rw_byte;
-      ow_uart.rx_done = true;
-      break;
+  uint16_t _len = uart_ll_get_rxfifo_len(ow_uart.dev);
+  if ( ow_uart.dev->int_st.val & UART_INTR_TX_DONE) {
+    ow_uart.tx_done = true;
+  } else if ( ow_uart.dev->int_st.val & UART_INTR_RXFIFO_FULL) {
+    while (_len) {
+      ow_uart.rx = READ_PERI_REG(ow_uart.rx_fifo_addr);
+      _len -=1;
+    }
   }
   uart_clear_intr_status(OW_UART_NUM, UART_INTR_MASK);
 }
@@ -43,7 +42,8 @@ esp_err_t ow_uart_driver_init() {
   ESP_ERROR_CHECK(uart_isr_register(OW_UART_NUM, uart_intr_handle, NULL,
                                     ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM,
                                     ow_uart.handle_ow_uart));
-  ow_uart.fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_REG(1) : UART_FIFO_REG(2);
+  ow_uart.rx_fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_REG(1) : UART_FIFO_REG(2);
+  ow_uart.tx_fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_AHB_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_AHB_REG(1) : UART_FIFO_AHB_REG(2);
   ow_uart.dev->conf1.rxfifo_full_thrhd = 1;
   //ow_uart.dev->conf1.rx_tout_thrhd = 10;
   return ESP_OK;
@@ -53,21 +53,19 @@ esp_err_t ow_uart_driver_init() {
 esp_err_t _ow_uart_write_byte(uint32_t baudrate, uint8_t data) {
   OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)
   ow_uart.tx_done = false;
-  uart_ll_write_txfifo(ow_uart.dev, &data, 0x01);
-  //ow_uart.dev->conf0.rxfifo_rst = 1;
-  ow_uart.rx_done = false;
+  WRITE_PERI_REG(ow_uart.tx_fifo_addr, data);
   return ESP_OK;
 }
 
 inline uint32_t _ow_uart_read() {
-  uint16_t fifo_len = ow_uart.dev->status.rxfifo_cnt;
-  ESP_LOGI("OWDriver", "read: %c%c%c%c%c%c%c%c fifo length: %d", BYTE_TO_BINARY(ow_uart.rx), fifo_len);
+  uint16_t st_rx = ow_uart.dev->fifo.rw_byte;
+  ESP_LOGI("OWDriver", "read: %c%c%c%c%c%c%c%c fifo rx: %d", BYTE_TO_BINARY(ow_uart.rx), st_rx);
   return ow_uart.rx;
 }
 
 uint16_t ow_uart_reset(void) {
   _ow_uart_write_byte(OW_9600_BAUDRATE, ONEWIRE_RESET);
-  WAIT_UNTIL_DONE(ow_uart.tx_done)
+  //WAIT_UNTIL_DONE(ow_uart.tx_done)
   return _ow_uart_read();
 }
 
