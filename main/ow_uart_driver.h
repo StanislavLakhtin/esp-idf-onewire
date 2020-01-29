@@ -53,7 +53,10 @@
             .source_clk = UART_SCLK_APB,      \
           }
 
-#define WAIT_UNTIL_DONE(what_we_wait)  while ( !what_we_wait );
+#define WAIT_UNTIL_DONE(what_we_wait)   \
+  uint16_t _d = 0xffff;                 \
+  while ( !what_we_wait && _d--)        \
+    asm("nop");
 
 #define OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)           \
   if ( ow_uart.last_baud_rate != baudrate ) {                     \
@@ -70,6 +73,7 @@ typedef struct {
   uint32_t last_baud_rate;
   uart_isr_handle_t * handle_ow_uart;
   bool tx_done;
+  bool rx_done;
 } OW_UART_DEV;
 
 #ifdef __cplusplus
