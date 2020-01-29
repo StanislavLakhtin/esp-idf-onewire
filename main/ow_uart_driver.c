@@ -53,19 +53,19 @@ esp_err_t ow_uart_driver_init() {
 esp_err_t _ow_uart_write_byte(uint32_t baudrate, uint8_t data) {
   OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)
   ow_uart.tx_done = false;
+  ow_uart.rx = 0x00;
   WRITE_PERI_REG(ow_uart.tx_fifo_addr, data);
   return ESP_OK;
 }
 
 inline uint32_t _ow_uart_read() {
-  uint16_t st_rx = ow_uart.dev->fifo.rw_byte;
-  ESP_LOGI("OWDriver", "read: %c%c%c%c%c%c%c%c fifo rx: %d", BYTE_TO_BINARY(ow_uart.rx), st_rx);
+  ESP_LOGI("OWDriver", "read: %c%c%c%c%c%c%c%c", BYTE_TO_BINARY(ow_uart.rx));
   return ow_uart.rx;
 }
 
 uint16_t ow_uart_reset(void) {
   _ow_uart_write_byte(OW_9600_BAUDRATE, ONEWIRE_RESET);
-  //WAIT_UNTIL_DONE(ow_uart.tx_done)
+  WAIT_UNTIL_DONE(ow_uart.tx_done)
   return _ow_uart_read();
 }
 
