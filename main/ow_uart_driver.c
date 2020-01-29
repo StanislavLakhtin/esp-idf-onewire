@@ -23,13 +23,13 @@ static volatile OW_UART_DEV ow_uart = {
 
 static void IRAM_ATTR uart_intr_handle() {
   uint16_t _len = uart_ll_get_rxfifo_len(ow_uart.dev);
-  if ( ow_uart.dev->int_st.val & UART_INTR_TX_DONE) {
+  if (ow_uart.dev->int_st.val & UART_INTR_TX_DONE) {
     ow_uart.tx_done = true;
   }
-  if ( ow_uart.dev->int_st.val & UART_INTR_RXFIFO_FULL) {
+  if (ow_uart.dev->int_st.val & UART_INTR_RXFIFO_FULL) {
     while (_len) {
       ow_uart.rx = READ_PERI_REG(ow_uart.rx_fifo_addr);
-      _len -=1;
+      _len -= 1;
     }
   }
   uart_clear_intr_status(OW_UART_NUM, UART_INTR_MASK);
@@ -43,8 +43,11 @@ esp_err_t ow_uart_driver_init() {
   ESP_ERROR_CHECK(uart_isr_register(OW_UART_NUM, uart_intr_handle, NULL,
                                     ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM,
                                     ow_uart.handle_ow_uart));
-  ow_uart.rx_fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_REG(1) : UART_FIFO_REG(2);
-  ow_uart.tx_fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_AHB_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_AHB_REG(1) : UART_FIFO_AHB_REG(2);
+  ow_uart.rx_fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_REG(1)
+                                                                                              : UART_FIFO_REG(2);
+  ow_uart.tx_fifo_addr = (ow_uart.dev == &UART0) ? UART_FIFO_AHB_REG(0) : (ow_uart.dev == &UART1) ? UART_FIFO_AHB_REG(1)
+                                                                                                  : UART_FIFO_AHB_REG(
+                                                                              2);
   ow_uart.dev->conf1.rxfifo_full_thrhd = 1;
   return ESP_OK;
 }
