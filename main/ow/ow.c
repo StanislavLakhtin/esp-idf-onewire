@@ -105,11 +105,11 @@ uint8_t ow_find_next_ROM(OneWire *ow_dev, uint8_t search_command) {
 
     do {
       // чтение прямого и комплиментарного битов
-      id_bit = ow_read_bit(ow_dev);
-      cmp_id_bit = ow_read_bit(ow_dev);
+      id_bit      = ow_read_bit(ow_dev);
+      cmp_id_bit  = ow_read_bit(ow_dev);
 
       // проверка, что на шине нет ни одного устрйоства. В этом случае и прямой и комплиментарный биты равны
-      if (id_bit && cmp_id_bit)
+      if (id_bit && cmp_id_bit )
         break;
       else {
         // все устройства имеют одинаковый ответ: 0 or 1, не важно сейчас
