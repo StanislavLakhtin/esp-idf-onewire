@@ -38,7 +38,7 @@ static void test_driver_task(void *arg) {
         for (uint8_t i = 0; i < ow_dev.state.devicesQuantity; i++) {
           if (ow_dev.rom[i].family == 0x28) {  // Found DS18B20 Temp sensor
             float _temp = read_temperature(&ow_dev, &ow_dev.rom[i]);
-            ESP_LOGI(OW_TASK_TAG, "DS18B20 sens: %x.%x.%x.%x.%x.%x (CRC %x) -- %f (C)",
+            ESP_LOGI(OW_TASK_TAG, "DS18B20 sens: %02x.%02x.%02x.%02x.%02x.%02x (CRC %02x) -- %f (C)",
                      ow_dev.rom[i].code[0], ow_dev.rom[i].code[1], ow_dev.rom[i].code[2],
                      ow_dev.rom[i].code[3], ow_dev.rom[i].code[4], ow_dev.rom[i].code[5],
                      ow_dev.rom[i].crc, _temp);
@@ -53,17 +53,7 @@ static void test_driver_task(void *arg) {
   }
 }
 
-static void test_task(void *arg) {
-  loop {
-    uint16_t _r = ow_uart_reset();
-    ESP_LOGI(OW_TASK_TAG, "Reset response: %d", _r);
-    //ESP_LOGI(OW_TASK_TAG, "Response RX: %d", _ow_uart_read());
-    vTaskDelay(3000 / portTICK_PERIOD_MS);
-  };
-}
-
 void app_main(void) {
   init();
   xTaskCreate(test_driver_task, "test_driver_task", 2048, NULL, 10, NULL);
-  //xTaskCreate(test_task, "test_task", 2048, NULL, 10, NULL);
 }
