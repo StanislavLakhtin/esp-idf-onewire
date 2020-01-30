@@ -26,7 +26,7 @@
 
 #define WIRE_0    0x00 // 0x00 --default
 #define WIRE_1    0xff
-#define OW_READ   0xff
+
 
 #ifndef FALSE
 #define FALSE 0x00
@@ -36,10 +36,6 @@
 #endif
 
 #define ALERT 0x02
-
-#define OW_SEND 0x01
-#define OW_RECEIVED 0x00
-#define ONEWIRE_READ_TIMEOUT 1000
 
 #ifdef __cplusplus
 extern "C"
@@ -81,8 +77,6 @@ uint8_t ow_find_next_ROM(OneWire *ow_dev, uint8_t search_command);
 uint8_t ow_scan(OneWire *ow_dev);
 
 uint8_t ow_read_bit(OneWire *ow_dev);
-
-void ow_send(OneWire *ow_dev, uint8_t data);
 
 void ow_send_byte(OneWire *ow_dev, uint8_t data);
 

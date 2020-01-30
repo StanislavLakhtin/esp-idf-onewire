@@ -30,20 +30,19 @@ void ow_clear_state(OneWire *ow_dev) {
   }
 }
 
-void ow_send(OneWire *ow_dev, uint8_t data) {
-  ow_dev->write(data);
-}
+//void ow_send(OneWire *ow_dev, uint8_t data) {
+//  ow_dev->write(data);
+//}
 
 void ow_send_byte(OneWire *ow_dev, uint8_t data) {
   for (uint8_t b = 0; b < 8; b++) {
-    uint8_t bit = (data & 0x01) ? WIRE_1 : WIRE_0;
-    ow_send(ow_dev, bit);
+    uint8_t bit_mask = (data & 0x01) ? WIRE_1 : WIRE_0;
+    ow_dev->write(bit_mask);
     data >>= 1;
   }
 }
 
 uint8_t ow_read_bit(OneWire *ow_dev) {
-  ow_send(ow_dev, OW_READ);
   return ow_dev->read() ? 0x01 : 0x00;
 }
 
@@ -145,7 +144,7 @@ uint8_t ow_find_next_ROM(OneWire *ow_dev, uint8_t search_command) {
 
         // отсылаем на шину выбранное нами направление сканирования
         uint8_t answerBit = (uint8_t) ((search_direction == 0) ? WIRE_0 : WIRE_1);
-        ow_send(ow_dev, answerBit);
+        ow_dev->write(answerBit);
 
         // выполняем инкремент бита id_bit_number
         // и сдвигаем маску rom_byte_mask

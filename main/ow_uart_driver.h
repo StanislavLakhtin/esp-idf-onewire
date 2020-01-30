@@ -73,7 +73,6 @@ typedef struct {
   uint32_t last_baud_rate;
   uart_isr_handle_t * handle_ow_uart;
   bool tx_done;
-  bool rx_done;
 } OW_UART_DEV;
 
 #ifdef __cplusplus

@@ -25,10 +25,8 @@ static void IRAM_ATTR uart_intr_handle() {
   uint16_t _len = uart_ll_get_rxfifo_len(ow_uart.dev);
   if (ow_uart.dev->int_st.val & UART_INTR_TX_DONE) {
     ow_uart.tx_done = true;
-    ow_uart.rx_done = false;
   }
   if (ow_uart.dev->int_st.val & UART_INTR_RXFIFO_FULL) {
-    ow_uart.rx_done = true;
     while (_len) {
       ow_uart.rx = READ_PERI_REG(ow_uart.rx_fifo_addr);
       _len -= 1;
@@ -58,29 +56,29 @@ esp_err_t _ow_uart_write_byte(uint32_t baudrate, uint8_t data) {
   OW_CHECK_IF_WE_SHOULD_CHANGE_BAUDRATE(baudrate)
   ow_uart.tx_done = false;
   ow_uart.rx = 0x00;
+  ESP_LOGD("owbus", "write: %c%c%c%c%c%c%c%c", BYTE_TO_BINARY(data));
   WRITE_PERI_REG(ow_uart.tx_fifo_addr, data);
   return ESP_OK;
 }
 
 inline uint32_t _ow_uart_read() {
-  WAIT_UNTIL_DONE(ow_uart.rx_done);
-  ESP_LOGI("OWDriver", "read: %c%c%c%c%c%c%c%c", BYTE_TO_BINARY(ow_uart.rx));
+  ESP_LOGD("owbus", "read: %c%c%c%c%c%c%c%c", BYTE_TO_BINARY(ow_uart.rx));
   return ow_uart.rx;
 }
 
 uint16_t ow_uart_reset(void) {
   _ow_uart_write_byte(OW_9600_BAUDRATE, ONEWIRE_RESET);
   WAIT_UNTIL_DONE(ow_uart.tx_done);
-  return _ow_uart_read();
+  return ( _ow_uart_read() != ONEWIRE_RESET) ? 0x01 : 0x00;
 }
 
 void ow_uart_send_signal(uint16_t data) {
-  uint32_t _duration_as_uart_data = data ? OW_SIGNAL_1 : OW_SIGNAL_0;
+  uint32_t _duration_as_uart_data = ( data ) ? OW_SIGNAL_1 : OW_SIGNAL_0;
   _ow_uart_write_byte(OW_115200_BAUDRATE, _duration_as_uart_data);
 }
 
 uint16_t ow_uart_read_signal(void) {
   _ow_uart_write_byte(OW_115200_BAUDRATE, OW_SIGNAL_READ);
   WAIT_UNTIL_DONE(ow_uart.tx_done);
-  return _ow_uart_read();
+  return ( _ow_uart_read() == OW_SIGNAL_READ) ? 0x01: 0x00;
 }
