@@ -52,7 +52,7 @@ static void test_driver_task(void *arg) {
           if (ow_dev.rom[i].family == 0x28) {  // Found DS18B20 Temp sensor
             float _temp = read_temperature(&ow_dev, &ow_dev.rom[i]);
             reverse_as_chars(ow_dev.rom[i].code, _mac, 6);
-            ESP_LOGI(OW_TASK_TAG, "DS18B20[0x28] sens id: 0x%s (CRC %02x) -- %f (C)",
+            ESP_LOGI(OW_TASK_TAG, "DS18B20[0x28] sens id: 0x%s (CRC %02X) -- %f (C)",
                      _mac, ow_dev.rom[i].crc, _temp);
           }
         }
