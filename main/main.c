@@ -29,6 +29,7 @@ static void init() {
 }
 
 static void test_driver_task(void *arg) {
+  char _mac[13];
   while (1) {
     uint16_t _presence = ow_dev.reset();
     if ( _presence ) {
@@ -38,10 +39,9 @@ static void test_driver_task(void *arg) {
         for (uint8_t i = 0; i < ow_dev.state.devicesQuantity; i++) {
           if (ow_dev.rom[i].family == 0x28) {  // Found DS18B20 Temp sensor
             float _temp = read_temperature(&ow_dev, &ow_dev.rom[i]);
-            ESP_LOGI(OW_TASK_TAG, "DS18B20 sens: %02x.%02x.%02x.%02x.%02x.%02x (CRC %02x) -- %f (C)",
-                     ow_dev.rom[i].code[0], ow_dev.rom[i].code[1], ow_dev.rom[i].code[2],
-                     ow_dev.rom[i].code[3], ow_dev.rom[i].code[4], ow_dev.rom[i].code[5],
-                     ow_dev.rom[i].crc, _temp);
+            ow_get_id_as_chars(&ow_dev.rom[i], _mac);
+            ESP_LOGI(OW_TASK_TAG, "DS18B20[0x28] sens id: 0x%s (CRC %02x) -- %f (C)",
+                     _mac, ow_dev.rom[i].crc, _temp);
           }
         }
       }

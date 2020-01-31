@@ -215,3 +215,15 @@ void ow_match_rom(OneWire *ow_dev, RomCode *rom) {
     ow_send_byte(ow_dev, rom->code[i]);
   ow_send_byte(ow_dev, rom->crc);
 }
+
+static const char * SYMBOLS = "0123456789ABCDEF";
+
+void ow_get_id_as_chars(RomCode *rom, char* buf){
+  uint8_t _p = 0;
+  for (int i = 5 ; i >= 0 ; i--) {
+    buf[_p] = SYMBOLS [rom->code[i] >> 4];
+    buf[_p+1] = SYMBOLS [0x0f & rom->code[i]];
+    _p += 2;
+  }
+  buf[_p] = 0x00;
+}
