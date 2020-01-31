@@ -76,7 +76,6 @@ uint8_t ow_scan(OneWire *ow_dev);
 uint8_t ow_read_bit(OneWire *ow_dev);
 void ow_send_byte(OneWire *ow_dev, uint8_t data);
 void ow_match_rom(OneWire *ow_dev, RomCode *rom);
-void ow_get_id_as_chars(RomCode *rom, char* buf);   // buf leb should be at least 13 bytes length
 
 #ifdef __cplusplus
 }

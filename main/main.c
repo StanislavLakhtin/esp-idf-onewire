@@ -28,6 +28,18 @@ static void init() {
   ESP_ERROR_CHECK(ow_uart_driver_init());
 }
 
+static const char * SYMBOLS = "0123456789ABCDEF";
+
+static void reverse_as_chars(uint8_t * from, char* to, int from_length) {
+  uint8_t _p = 0;
+  for (int i = from_length - 1 ; i >= 0 ; i--) {
+    to[_p] = SYMBOLS [from[i] >> 4];
+    to[_p+1] = SYMBOLS [0x0f & from[i]];
+    _p += 2;
+  }
+  to[_p] = 0x00;
+}
+
 static void test_driver_task(void *arg) {
   char _mac[13];
   while (1) {
@@ -39,7 +51,7 @@ static void test_driver_task(void *arg) {
         for (uint8_t i = 0; i < ow_dev.state.devicesQuantity; i++) {
           if (ow_dev.rom[i].family == 0x28) {  // Found DS18B20 Temp sensor
             float _temp = read_temperature(&ow_dev, &ow_dev.rom[i]);
-            ow_get_id_as_chars(&ow_dev.rom[i], _mac);
+            reverse_as_chars(ow_dev.rom[i].code, _mac, 6);
             ESP_LOGI(OW_TASK_TAG, "DS18B20[0x28] sens id: 0x%s (CRC %02x) -- %f (C)",
                      _mac, ow_dev.rom[i].crc, _temp);
           }
