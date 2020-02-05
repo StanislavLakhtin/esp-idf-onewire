@@ -7,7 +7,27 @@ This example demonstrates how to utilize UART interfaces of ESP32 to use as OneW
 ### Hardware Required
 
 The example can be run on any ESP32 development board connected to a PC with a single USB cable for flashing and
-monitoring. The external interface should have 3.3V outputs. You may use e.g. 3.3V compatible USB-to-Serial dongle.
+monitoring. The external interface should have 3.3V outputs. You may use e.g. 3.3V compatible USB-to-Serial dongle if your board doesn't containt it.
+
+The DS18BB20 sensor works from 5V& In this case you must use 3V3 to/from 5V logic level converter. For an example like that:
+
+```
+
+          ^  3v3                            ^ 5v
+          |                                 |
+          |  4.7K                   4.7K    |
+          ---/\/\/--*---          --/\/\/\---
+                    |  |   G      |
+                    |  |_______   |
+                    |   _  _  _   |
+                    |   |  ^  |   |
+        TX ----|<---*---|--|--|---*------ 1-wire bus
+            Schotky | S |     | D
+             Diode  |   --->|--
+        RX ---------|   N-Channel
+                         Mosfet (BSS138 like)  
+```
+     
 
 ### Setup the Hardware
 
