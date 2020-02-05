@@ -1,10 +1,16 @@
 # UART OneWire Example
 
-This example demonstrates how to utilize UART interfaces of ESP32 to use as OneWire bus. It uses a few DS18B20 sensors to scan a bus and write CALC command.
+This example demonstrates how to utilize UART interfaces of ESP32 to use as OneWire bus. 
 
-## How to use example
+It uses a few DS18B20 sensors to scan a bus and write SEARCH/CALC command.
 
-### Hardware Required
+The advantage of the library is its tremendous speed and full hardware implementation.
+
+This implementation allows the execution of other threads in parallel with the main thread while maintaining operability.
+
+The accuracy of operations is determined by the UART subsystem.
+
+## Hardware Required
 
 The example can be run on any ESP32 development board connected to a PC with a single USB cable for flashing and
 monitoring. The external interface should have 3.3V outputs. You may use e.g. 3.3V compatible USB-to-Serial dongle if your board doesn't containt it.
@@ -31,9 +37,9 @@ The DS18BB20 sensor works from 5V& In this case you must use 3V3 to/from 5V logi
 
 Please take note, that Schottky diode is necessary!
 
-### Setup the Hardware
+## Setup the Hardware
 
-#### Prepare schema 3v3 and 5v negotiations
+### Prepare schema 3v3 and 5v negotiations
 
 Connect the external serial interface to the ESP32 board as follows.
 
@@ -42,6 +48,7 @@ Connect the external serial interface to the ESP32 board as follows.
 | Transmit Data (TxD) | OW_UART_TXD | GPIO16 |
 | Receive Data (RxD)  | OW_UART_RXD | GPIO17 |
 | Ground  | GND | GND |
+| 3v3     | VCC | VCC |
 
 | DS18B20    | ESP32 Pin  |
 | ---------  | ---------- |
@@ -52,7 +59,7 @@ Connect the external serial interface to the ESP32 board as follows.
 
 Optionally, you can set-up and use a VDD that has +3.3V
 
-### Configure the project
+## Configure the project
 
 ```
 idf.py menuconfig
@@ -64,7 +71,7 @@ idf.py menuconfig
 
 * Set serial port under Serial Flasher Options.
 
-### Build and Flash
+## Build and Flash
 
 Build the project and flash it to the board, then run monitor tool to view serial output:
 
@@ -115,4 +122,8 @@ Logic Analizer:
 
 ## Troubleshooting
 
-#todo
+#todo Oscilloscope screenshot 
+
+Thank you!
+
+I'm looking for an interesting jobs in field of uC. If you have one write on stanislav.lakhtin@eduterra.pro
