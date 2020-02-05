@@ -87,7 +87,7 @@ idf.py -p PORT flash monitor
 
 ## Example Output
 
-There are two sensors on the 1-wire bus:
+There are three sensors on the 1-wire bus:
 
 ```
 I (10) 1wire: Scan OW bus...
