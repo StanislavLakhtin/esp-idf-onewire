@@ -120,9 +120,11 @@ Logic Analizer:
 
 ![Logic Analizer Saleae Logic](./docs/logic_analizer.png)
 
-## Troubleshooting
+## Oscilloscope screenshots
 
-#todo Oscilloscope screenshot
+![WaveForms 1](./docs/WA00001.BMP)
+
+![WaveForms 2](./docs/WA00002.BMP)
 
 Thanks to [@andrei15](https://github.com/andrei15), who was actively involved in the development of this project.
 
