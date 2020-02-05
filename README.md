@@ -36,9 +36,9 @@ For an example like that:
 ```
      
 
-Please take note, that Schottky diode is necessary!
+Please take note that Schottky diode is necessary!
 
-In a few cases you can try to use DS18B20 on 3.3v power supply without any mosfet, but anyway you MUST use Schottky diode.
+In a few cases you can try to use DS18B20 on 3.3v power supply without any mosfet. Anyway you MUST use Schottky diode.
 
 ## Setup the Hardware
 
