@@ -131,7 +131,7 @@ Logic Analizer:
 
 Thanks to [@andrei15](https://github.com/andrei15), who was actively involved in the development of this project.
 
-#todo Separate library and example codes into separate projects.
+#todo Separate library and example codes into individuals projects.
 
 Thank you!
 
