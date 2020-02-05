@@ -1,12 +1,12 @@
 /**
     @author Stanislav Lakhtin
     @date   11.07.2016
-    @brief  Реализация протокола 1wire на базе библиотеки libopencm3 для микроконтроллера STM32F103
-            Возможно, библиотека будет корректно работать и на других uK (требуется проверка).
-            Общая идея заключается в использовании аппаратного USART/UART uK для иммитации работы 1wire.
-            Подключение устройств осуществляется на выбранный USART к TX пину, который должен быть подтянут к линии питания сопротивлением 4.7К.
-            Реализация библиотеки осуществляет замыкание RX на TX внутри uK, оставляя ножку RX доступной для использования в других задачах.
- */
+    @brief  This example code is in the Public Domain (or CC0 licensed, at your option.)
+
+            Unless required by applicable law or agreed to in writing, this
+            software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+            CONDITIONS OF ANY KIND, either express or implied.
+*/
 #ifndef STM32_DS18X20_ONEWIRE_H
 #define STM32_DS18X20_ONEWIRE_H
 

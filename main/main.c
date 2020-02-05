@@ -1,4 +1,4 @@
-/* UART Echo Example
+/* UART 1-wire (OneWire) Free RTOS Example for DS18B20
  *
  * Created by Stanislav Lakhtin on 06.01.2020.
 

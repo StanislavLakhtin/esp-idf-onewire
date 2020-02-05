@@ -3,13 +3,12 @@
 /**
     @author Stanislav Lakhtin
     @date   12.07.2019
-    @brief  OneWire библиотека для микроконтроллеров на базе STM32 с использованием UART/USART
-            Программное обеспеение предоставляется как есть, без каких либо гарантий.
-            Основной поисковый алгоритм реализован с использованием демонстрационного кода и эталонного
-            кода реализации компании MAXIM
+    @brief  This example code is in the Public Domain (or CC0 licensed, at your option.)
 
-            В случае использования, просьба ссылаться на первоисточник.
- */
+            Unless required by applicable law or agreed to in writing, this
+            software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+            CONDITIONS OF ANY KIND, either express or implied.
+*/
 
 static uint8_t docrc8(OneWire *ow_dev, uint8_t value);
 

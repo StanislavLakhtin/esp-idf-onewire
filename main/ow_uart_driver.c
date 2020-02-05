@@ -1,4 +1,4 @@
-/* UART Echo Example
+/* UART 1-wire (OneWire) Free RTOS Periherial OW_UART Driver
  *
  * Created by Stanislav Lakhtin on 06.01.2020.
 
