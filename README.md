@@ -22,12 +22,14 @@ The DS18BB20 sensor works from 5V& In this case you must use 3V3 to/from 5V logi
                     |   _  _  _   |
                     |   |  ^  |   |
         TX ----|<---*---|--|--|---*------ 1-wire bus
-            Schotky | S |     | D
+           Schottky | S |     | D
              Diode  |   --->|--
         RX ---------|   N-Channel
                          Mosfet (BSS138 like)  
 ```
      
+
+Please take note, that Schottky diode is necessary!
 
 ### Setup the Hardware
 
@@ -37,8 +39,8 @@ Connect the external serial interface to the ESP32 board as follows.
 
   | ESP32 Interface | #define | ESP32 Pin 
   | --- | --- | --- | --- |
-  | Transmit Data (TxD) | ECHO_TEST_TXD | GPIO16 
-  | Receive Data (RxD) | ECHO_TEST_RXD | GPIO17 
+  | Transmit Data (TxD) | OW_UART_TXD | GPIO16 
+  | Receive Data (RxD)  | OW_UART_RXD | GPIO17 
   | Ground  | n/a | GND | GND |
 
 
@@ -72,13 +74,39 @@ idf.py -p PORT flash monitor
 
 ## Example Output
 
-#todo
+There are two sensors on the 1-wire bus:
 
-Type some characters in the terminal connected to the external serial interface. As result you should see echo in the
-terminal which is used for flashing and monitoring. You can verify if the echo indeed comes from ESP32 by
-disconnecting either `TxD` or `RxD` pin: no characters will appear when typing.
+```
+I (10) 1wire: Scan OW bus...
+I (80) 1wire: DS18B20[0x28] sens id: 0x80000003D568 (CRC F4) -- 25.937500 (C)
+I (100) 1wire: DS18B20[0x28] sens id: 0x80000003E20A (CRC 8C) -- 26.250000 (C)
+I (130) 1wire: DS18B20[0x28] sens id: 0x041663B9BCFF (CRC 42) -- 45.875000 (C)
+I (130) 1wire: Presence correct. SCAN found 3 devices on the bus
+I (3130) 1wire: PRESENCE detected on 1-wire bus. Presence signal: 1
+I (3130) 1wire: Scan OW bus...
+I (3200) 1wire: DS18B20[0x28] sens id: 0x80000003D568 (CRC F4) -- 25.937500 (C)
+I (3220) 1wire: DS18B20[0x28] sens id: 0x80000003E20A (CRC 8C) -- 26.250000 (C)
+I (3240) 1wire: DS18B20[0x28] sens id: 0x041663B9BCFF (CRC 42) -- 45.875000 (C)
+I (3240) 1wire: Presence correct. SCAN found 3 devices on the bus
+I (6240) 1wire: PRESENCE detected on 1-wire bus. Presence signal: 1
+I (6240) 1wire: Scan OW bus...
+I (6310) 1wire: DS18B20[0x28] sens id: 0x80000003D568 (CRC F4) -- 25.937500 (C)
+I (6330) 1wire: DS18B20[0x28] sens id: 0x80000003E20A (CRC 8C) -- 26.250000 (C)
+I (6350) 1wire: DS18B20[0x28] sens id: 0x041663B9BCFF (CRC 42) -- 45.875000 (C)
+I (6350) 1wire: Presence correct. SCAN found 3 devices on the bus
+I (9350) 1wire: PRESENCE detected on 1-wire bus. Presence signal: 1
+I (9350) 1wire: Scan OW bus...
+I (9420) 1wire: DS18B20[0x28] sens id: 0x80000003D568 (CRC F4) -- 25.937500 (C)
+I (9440) 1wire: DS18B20[0x28] sens id: 0x80000003E20A (CRC 8C) -- 26.250000 (C)
+I (9460) 1wire: DS18B20[0x28] sens id: 0x041663B9BCFF (CRC 42) -- 45.875000 (C)
+I (9460) 1wire: Presence correct. SCAN found 3 devices on the bus
+
+```
+
+Logic Analizer:
+
+![Logic Analizer Saleae Logic](./docs/logic_analizer.png)
 
 ## Troubleshooting
 
-You are not supposed to see the echo in the terminal which is used for flashing and monitoring, but in the other one
-which is connected to UART1.
+#todo

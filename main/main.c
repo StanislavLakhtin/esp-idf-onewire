@@ -45,7 +45,7 @@ static void test_driver_task(void *arg) {
   while (1) {
     uint16_t _presence = ow_dev.reset();
     if ( _presence ) {
-      ESP_LOGI(OW_TASK_TAG, "PRESENCE detected on 1-wire bus. Duration: %d ms", _presence);
+      ESP_LOGI(OW_TASK_TAG, "PRESENCE detected on 1-wire bus. Presence signal: %d", _presence);
       ESP_LOGI(OW_TASK_TAG, "Scan OW bus...");
       if (ow_scan(&ow_dev)) {
         for (uint8_t i = 0; i < ow_dev.state.devicesQuantity; i++) {
