@@ -56,7 +56,7 @@ Connect the external serial interface to the ESP32 board as follows.
 | DS18B20    | ESP32 Pin  |
 | ---------  | ---------- |
 | 1-wire bus | Signal Line |
-| 5V         | External 5V supply |
+| 5V         | VDD -- External 5V supply |
 | Ground     | GND |
 
 
