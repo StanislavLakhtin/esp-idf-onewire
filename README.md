@@ -122,7 +122,9 @@ Logic Analizer:
 
 ## Troubleshooting
 
-#todo Oscilloscope screenshot 
+#todo Oscilloscope screenshot
+
+Thanks to [@andrei15](https://github.com/andrei15), who was actively involved in the development of this project.
 
 Thank you!
 
