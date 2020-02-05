@@ -37,11 +37,17 @@ Please take note, that Schottky diode is necessary!
 
 Connect the external serial interface to the ESP32 board as follows.
 
-  | ESP32 Interface | #define | ESP32 Pin 
-  | --- | --- | --- | --- |
-  | Transmit Data (TxD) | OW_UART_TXD | GPIO16 
-  | Receive Data (RxD)  | OW_UART_RXD | GPIO17 
-  | Ground  | n/a | GND | GND |
+| ESP32 Interface | #define | ESP32 Pin |
+| --- | --- | --- |
+| Transmit Data (TxD) | OW_UART_TXD | GPIO16 |
+| Receive Data (RxD)  | OW_UART_RXD | GPIO17 |
+| Ground  | GND | GND |
+
+| DS18B20    | ESP32 Pin  |
+| ---------  | ---------- |
+| 1-wire bus | Siglal Line |
+| 5V         | External 5V supply |
+| Ground     | GND |
 
 
 Optionally, you can set-up and use a VDD that has +3.3V
