@@ -133,6 +133,11 @@ Thanks to [@andrei15](https://github.com/andrei15), who was actively involved in
 
 #todo Separate library and example codes into individuals projects.
 
+I had to spend almost a month to figure out the HAL / SOC esp-idf. There is no advertising in the project, everything is clear
+ and on the case, ready for commercial operation completely free.
+
+I would be grateful if you would treat me with a cup of coffee, if this project is useful to you.
+
 Thank you!
 
 I'm looking for an interesting jobs in field of uC. If you have one write on stanislav.lakhtin@eduterra.pro
