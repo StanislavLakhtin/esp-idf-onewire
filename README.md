@@ -15,7 +15,8 @@ The accuracy of operations is determined by the UART subsystem.
 The example can be run on any ESP32 development board connected to a PC with a single USB cable for flashing and
 monitoring. The external interface should have 3.3V outputs. You may use e.g. 3.3V compatible USB-to-Serial dongle if your board doesn't containt it.
 
-The DS18BB20 sensor works from 5V& In this case you must use 3V3 to/from 5V logic level converter. For an example like that:
+The DS18BB20 sensor works from 5V. In this case you MUST use 3V3 to/from 5V logic level converter. 
+For an example like that:
 
 ```
 
@@ -37,6 +38,8 @@ The DS18BB20 sensor works from 5V& In this case you must use 3V3 to/from 5V logi
 
 Please take note, that Schottky diode is necessary!
 
+In a few cases you can try to use DS18B20 on 3.3v power supply without any mosfet, but anyway you MUST use Schottky diode.
+
 ## Setup the Hardware
 
 ### Prepare schema 3v3 and 5v negotiations
@@ -52,7 +55,7 @@ Connect the external serial interface to the ESP32 board as follows.
 
 | DS18B20    | ESP32 Pin  |
 | ---------  | ---------- |
-| 1-wire bus | Siglal Line |
+| 1-wire bus | Signal Line |
 | 5V         | External 5V supply |
 | Ground     | GND |
 
