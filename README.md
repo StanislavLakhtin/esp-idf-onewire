@@ -20,19 +20,19 @@ For an example like that:
 
 ```
 
-          ^  3v3                            ^ 5v
-          |                                 |
-          |  4.7K                   4.7K    |
-          ---/\/\/--*---          --/\/\/\---
-                    |  |   G      |
-                    |  |_______   |
-                    |   _  _  _   |
-                    |   |  ^  |   |
-        TX ----|<---*---|--|--|---*------ 1-wire bus
-           Schottky | S |     | D
-             Diode  |   --->|--
-        RX ---------|   N-Channel
-                         Mosfet (BSS138 like)  
+          ^  3v3                                            ^ 5v
+          |                                                 |
+          |  4.7K                                   4.7K    |
+          ---/\/\/--*-------------------------------/\/\/\---
+                    |         |   G           |
+                    |         |_______        |
+                    |          _  _  _        |
+                    |          |  ^  |        |
+        TX ----|<---*----------|--|--|--===---*------ 1-wire bus
+           Schottky |        S |     | D
+             Diode  |          --->|--
+        RX ---------|          N-Channel
+                          Mosfet (BSS138 like)  
 ```
      
 
@@ -135,9 +135,5 @@ Thanks to [@andrei15](https://github.com/andrei15), who was actively involved in
 
 I had to spend almost a month to figure out the HAL / SOC esp-idf. There is no advertising in the project, everything is clear
  and on the case, ready for commercial operation completely free.
-
-I would be grateful if you would treat me with a cup of coffee, if this project is useful to you.
-
-Thank you!
 
 I'm looking for an interesting jobs in field of uC. If you have one write on stanislav.lakhtin@eduterra.pro
