@@ -1,4 +1,4 @@
-# UART OneWire Example
+# OneWire (1-wire) through UART on ESP32 Example / ESP_IDF FreeRTOS
 
 This example demonstrates how to utilize UART interfaces of ESP32 to use as OneWire bus. 
 
