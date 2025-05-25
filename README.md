@@ -1,3 +1,7 @@
+## Support the Project
+
+[![Support Project](https://img.shields.io/badge/Support-the%20Project-8C00FF?logo=yoomoney&style=for-the-badge)](https://yoomoney.ru/quickpay/fundraise/widget?billNumber=1AE1TGAUMKM.250523)
+
 # OneWire (1-wire) through UART on ESP32 Example / ESP_IDF FreeRTOS
 
 This example demonstrates how to utilize UART interfaces of ESP32 to use as OneWire bus. 

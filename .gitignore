@@ -1,6 +1,9 @@
 .venv
 .idea
+.fleet
 build/
+cmake-build-debug
+cmake-build-debug-esp_idf
 *.a
 *.o
 clion.build/
