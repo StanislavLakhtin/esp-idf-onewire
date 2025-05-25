@@ -13,9 +13,8 @@
 #define ONEWIRE_UART_OW_UART_DRIVER_H
 #include <string.h>
 #include "driver/uart.h"
-#include "driver/periph_ctrl.h"
-#include "hal/gpio_types.h"
 #include "hal/uart_hal.h"
+#include "soc/gpio_num.h"
 
 #define OW_UART_NUM     UART_NUM_1
 #define OW_UART_TXD     GPIO_NUM_16
