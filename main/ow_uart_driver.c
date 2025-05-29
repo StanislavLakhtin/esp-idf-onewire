@@ -20,34 +20,7 @@
 #include <sdkconfig.h>
 #include "driver/gpio.h"
 
-#define UART_ENTER_CRITICAL_SAFE(mux)   portENTER_CRITICAL_SAFE(mux)
-#define UART_EXIT_CRITICAL_SAFE(mux)    portEXIT_CRITICAL_SAFE(mux)
-#define UART_ENTER_CRITICAL_ISR(mux)    portENTER_CRITICAL_ISR(mux)
-#define UART_EXIT_CRITICAL_ISR(mux)     portEXIT_CRITICAL_ISR(mux)
-#define UART_ENTER_CRITICAL(mux)    portENTER_CRITICAL(mux)
-#define UART_EXIT_CRITICAL(mux)     portEXIT_CRITICAL(mux)
-
 #define UART_INTR_MASK (UART_INTR_TX_DONE | UART_INTR_RXFIFO_FULL)
-
-#define UART_CONTEX_INIT_DEF(uart_num) {\
-    .hal.dev = UART_LL_GET_HW(uart_num),\
-    INIT_CRIT_SECTION_LOCK_IN_STRUCT(spinlock)\
-    .hw_enabled = false,\
-}
-
-typedef struct {
-    uart_hal_context_t hal;        /*!< UART hal context*/
-    DECLARE_CRIT_SECTION_LOCK_IN_STRUCT(spinlock)
-    bool hw_enabled;
-} uart_context_t;
-
-static uart_context_t uart_context[UART_NUM_MAX] = {
-    UART_CONTEX_INIT_DEF(UART_NUM_0),
-    UART_CONTEX_INIT_DEF(UART_NUM_1),
-#if UART_NUM_MAX > 2
-    UART_CONTEX_INIT_DEF(UART_NUM_2),
-#endif
-};
 
 static volatile OW_UART_DEV ow_uart = {
     .dev = UART_LL_GET_HW(OW_UART_NUM),
@@ -76,19 +49,17 @@ esp_err_t ow_uart_driver_init() {
     uart_config_t uart_config = OW_UART_CONFIG(ow_uart.last_baud_rate);
     ESP_ERROR_CHECK(uart_param_config(OW_UART_NUM, &uart_config));
     ESP_ERROR_CHECK(uart_set_pin(OW_UART_NUM, OW_UART_TXD, OW_UART_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-    gpio_set_pull_mode(OW_UART_RXD,GPIO_FLOATING);
-    gpio_set_direction(OW_UART_TXD, GPIO_MODE_OUTPUT);
-    gpio_set_direction(OW_UART_RXD, GPIO_MODE_INPUT);
+    // rx pin should be floating in order to correctly receive data from sensor
+    gpio_set_pull_mode(OW_UART_RXD, GPIO_FLOATING);
 
     uart_intr_config_t uart_intr = {
         .intr_enable_mask = UART_INTR_MASK,
         .rxfifo_full_thresh = 1,
     };
 
-    uart_hal_disable_intr_mask(&(uart_context[OW_UART_NUM].hal), UART_LL_INTR_MASK);
-    uart_hal_clr_intsts_mask(&(uart_context[OW_UART_NUM].hal), UART_LL_INTR_MASK);
+    uart_ll_disable_intr_mask(ow_uart.dev, UART_LL_INTR_MASK);
+    uart_ll_clr_intsts_mask(ow_uart.dev, UART_LL_INTR_MASK);
 
-    // r = uart_isr_register(OW_UART_NUM, uart_intr_handle, NULL, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM, ow_uart.handle_ow_uart);
     r = esp_intr_alloc(uart_periph_signal[OW_UART_NUM].irq, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM,
                        uart_intr_handle, NULL,
                        ow_uart.handle_ow_uart);
@@ -99,8 +70,6 @@ esp_err_t ow_uart_driver_init() {
     if (r != ESP_OK) {
         ESP_LOGE("owbus", "init failed on intr config");
     }
-
-    // ESP_ERROR_CHECK(uart_intr_config(OW_UART_NUM, &uart_intr));
 
     ow_uart.rx_fifo_addr = (ow_uart.dev == &UART0)
                                ? UART_FIFO_REG(0)
