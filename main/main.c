@@ -67,5 +67,5 @@ static void test_driver_task(void *arg) {
 
 void app_main(void) {
   init();
-  xTaskCreate(test_driver_task, "test_driver_task", 2048, NULL, 10, NULL);
+  xTaskCreate(test_driver_task, "test_driver_task", 8048, NULL, 10, NULL);
 }

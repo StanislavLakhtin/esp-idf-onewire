@@ -18,6 +18,7 @@
 #include "freertos/ringbuf.h"
 #include "esp_private/critical_section.h"
 #include <sdkconfig.h>
+#include "driver/gpio.h"
 
 #define UART_ENTER_CRITICAL_SAFE(mux)   portENTER_CRITICAL_SAFE(mux)
 #define UART_EXIT_CRITICAL_SAFE(mux)    portEXIT_CRITICAL_SAFE(mux)
@@ -70,40 +71,20 @@ static void IRAM_ATTR uart_intr_handle() {
     uart_clear_intr_status(OW_UART_NUM, UART_LL_INTR_MASK);
 }
 
-static void uart_module_enable(uart_port_t uart_num)
-{
-    UART_ENTER_CRITICAL(&(uart_context[uart_num].spinlock));
-    if (uart_context[uart_num].hw_enabled != true) {
-        periph_module_enable(uart_periph_signal[uart_num].module);
-        if (uart_num != CONFIG_ESP_CONSOLE_UART_NUM) {
-            // Workaround for ESP32C3/S3: enable core reset before enabling uart module clock to prevent uart output
-            // garbage value.
-#if SOC_UART_REQUIRE_CORE_RESET
-            uart_hal_set_reset_core(&(uart_context[uart_num].hal), true);
-            periph_module_reset(uart_periph_signal[uart_num].module);
-            uart_hal_set_reset_core(&(uart_context[uart_num].hal), false);
-#else
-            periph_module_reset(uart_periph_signal[uart_num].module);
-#endif
-        }
-        uart_context[uart_num].hw_enabled = true;
-    }
-    UART_EXIT_CRITICAL(&(uart_context[uart_num].spinlock));
-}
-
 esp_err_t ow_uart_driver_init() {
     esp_err_t r;
     uart_config_t uart_config = OW_UART_CONFIG(ow_uart.last_baud_rate);
     ESP_ERROR_CHECK(uart_param_config(OW_UART_NUM, &uart_config));
     ESP_ERROR_CHECK(uart_set_pin(OW_UART_NUM, OW_UART_TXD, OW_UART_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-    // ESP_ERROR_CHECK(uart_driver_install(OW_UART_NUM, 129, 0, 0, NULL, 0));
+    gpio_set_pull_mode(OW_UART_RXD,GPIO_FLOATING);
+    gpio_set_direction(OW_UART_TXD, GPIO_MODE_OUTPUT);
+    gpio_set_direction(OW_UART_RXD, GPIO_MODE_INPUT);
 
     uart_intr_config_t uart_intr = {
         .intr_enable_mask = UART_INTR_MASK,
         .rxfifo_full_thresh = 1,
     };
 
-    uart_module_enable(OW_UART_NUM);
     uart_hal_disable_intr_mask(&(uart_context[OW_UART_NUM].hal), UART_LL_INTR_MASK);
     uart_hal_clr_intsts_mask(&(uart_context[OW_UART_NUM].hal), UART_LL_INTR_MASK);
 
