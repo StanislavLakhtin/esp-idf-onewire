@@ -44,7 +44,6 @@ esp_err_t ow_uart_driver_init() {
     ESP_ERROR_CHECK(uart_param_config(OW_UART_NUM, &uart_config));
     ESP_ERROR_CHECK(uart_set_pin(OW_UART_NUM, OW_UART_TXD, OW_UART_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
     uart_ll_ena_intr_mask(ow_uart.dev, UART_INTR_TX_DONE | UART_INTR_RXFIFO_FULL);
-    uart_enable_rx_intr(OW_UART_NUM);
 
     ESP_ERROR_CHECK(
         esp_intr_alloc(uart_periph_signal[OW_UART_NUM].irq, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM, uart_intr_handle,
